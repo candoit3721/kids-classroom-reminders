@@ -21,6 +21,7 @@ Google Classroom ──(Claude in Chrome, 3x/day)──> raw_items
 | `index.html` | entry page - both kids |
 | `sophia/index.html`, `olivia/index.html` | per-kid entry pages |
 | `app.css`, `app.js` | the whole app, shared by all three pages |
+| `.githooks/pre-commit` | rewrites the `?v=` asset version when an asset changes |
 | `db/schema.sql` | reference snapshot of the schema (live DB is the source of truth) |
 | `docs/collector-spec.md` | the contract the scheduled collector follows |
 | `oauth/` | the blocked Google API path, kept for later (secrets git-ignored) |
@@ -35,6 +36,25 @@ git push -u origin main
 Then **Settings → Pages → Source: Deploy from a branch → main / (root)**.
 Live in about a minute. Pages serves it with no config, no Actions workflow
 and no build.
+
+## Asset versioning
+
+The four pages load `app.css`, `app.js`, `ask/ask.css` and `ask/ask.js` with a
+`?v=` query string. Pages serves this repo verbatim, so nothing fingerprints
+those files for us, and a change shipped without a new query string is invisible
+to anyone whose browser still holds the old copy.
+
+A tracked pre-commit hook handles it. Enable it once per clone:
+
+```bash
+git config core.hooksPath .githooks
+```
+
+When a commit includes any of those four assets, the hook rewrites `?v=` on all
+four pages to a hash of the assets' staged content, and stages the pages too.
+Commits touching no asset are left alone. If a page has unstaged edits the hook
+stops the commit rather than sweeping them in. Committing through a tool that
+skips hooks skips this too, so the string would then need bumping by hand.
 
 ## URLs
 
