@@ -57,15 +57,53 @@ $("#unlock").addEventListener("submit", async e => {
   showAsk();
 });
 
-$("#forget").addEventListener("click", () => { store.clear(); location.reload(); });
-$("#newthread").addEventListener("click", () => {
+function newThread(){
   history = [];
   $("#thread").innerHTML = "";
   $("#out").innerHTML = "";
   setEmpty(true);
   autogrow();
   $("#q").focus();
-});
+}
+function forgetKey(){ store.clear(); location.reload(); }
+
+$("#forget").addEventListener("click", forgetKey);
+$("#newthread").addEventListener("click", newThread);
+
+/* ------------------------------------------------------ commands
+   Anything starting with "/" is handled here and never reaches the
+   Edge Function, so a typo cannot burn a model call. The list shows
+   itself as soon as you type "/", which is the only way anyone would
+   discover these. */
+const COMMANDS = [
+  { names: ["/clear", "/new"], help: "start a brand new chat",            run: newThread },
+  { names: ["/forget"],        help: "forget the access key on this device", run: forgetKey },
+  { names: ["/help", "/?"],    help: "show this list",                    run: () => showHelp() }
+];
+
+function hint(html){
+  const el = $("#cmdhint");
+  el.innerHTML = html;
+  el.hidden = !html;
+}
+function showHelp(){
+  hint(COMMANDS.map(c =>
+    `<span class="cmd">${esc(c.names[0])}</span> ${esc(c.help)}`).join(" "));
+}
+
+/* returns true when the input was a command, so the caller stops */
+function runCommand(text){
+  if (!text.startsWith("/")) { hint(""); return false; }
+  const word = text.split(/\s+/)[0].toLowerCase();
+  const cmd = COMMANDS.find(c => c.names.includes(word));
+  if (!cmd){
+    hint(`Unknown command <span class="cmd">${esc(word)}</span> type /help for the list`);
+    return true;
+  }
+  hint("");
+  cmd.run();
+  return true;
+}
 
 /* ------------------------------------------------------ kid scope */
 $("#kidscope").addEventListener("click", e => {
@@ -209,7 +247,10 @@ function autogrow(){
   t.style.height = "auto";
   t.style.height = Math.min(t.scrollHeight, 144) + "px";
 }
-$("#q").addEventListener("input", autogrow);
+$("#q").addEventListener("input", () => {
+  autogrow();
+  if ($("#q").value.startsWith("/")) showHelp(); else hint("");
+});
 
 $("#askform").addEventListener("submit", e => {
   e.preventDefault();
@@ -217,6 +258,7 @@ $("#askform").addEventListener("submit", e => {
   if (!q) return;
   $("#q").value = "";
   autogrow();
+  if (runCommand(q)) return;
   submit(q);
 });
 

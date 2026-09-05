@@ -36,7 +36,10 @@ body{ padding-bottom:0 }
 }
 
 /* --- empty state ---------------------------------------------- */
-.askui.is-empty{ justify-content:center }
+/* Centred, but optically a little above true centre: the padding shrinks
+   the box the composer centres in, lifting it by half the value. vh so the
+   shift stays proportional on a phone as well as a desktop. */
+.askui.is-empty{ justify-content:center; padding-bottom:12vh }
 .askui.is-empty .scroll{ display:none }
 .askui.is-empty .composer{ position:static; padding-bottom:0 }
 .askui.is-empty .composer::before{ display:none }
@@ -46,6 +49,18 @@ body{ padding-bottom:0 }
   font-size:1.15rem; font-weight:700; letter-spacing:-.01em; color:var(--ink)
 }
 .askui.is-empty .lead-in{ display:block }
+
+/* Slash-command feedback. No display property on purpose: the hidden
+   attribute only works while nothing outranks the UA rule for it. */
+.cmdhint{
+  margin:.6rem .2rem 0; font-size:.78rem; line-height:1.7; color:var(--muted);
+}
+.cmdhint .cmd{
+  font-family:ui-monospace,SFMono-Regular,Menlo,monospace; font-size:.75rem;
+  color:var(--accent); background:var(--accent-soft);
+  border-radius:6px; padding:.05rem .35rem; margin-right:.45rem;
+}
+.cmdhint .cmd:not(:first-child){ margin-left:.9rem }
 
 /* the examples are starters, so they belong to the empty state only */
 .examples{
