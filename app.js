@@ -1,5 +1,5 @@
 /* ============================================================
-   School Day — reads Supabase public views. No build step.
+   School Day - reads Supabase public views. No build step.
    Which kid is shown comes from the URL path:
      /            → both
      /sophia/     → Sophia
@@ -36,7 +36,7 @@ const time12 = t => {
   const ap = h >= 12 ? "pm" : "am"; h = h % 12 || 12;
   return mi ? `${h}:${String(mi).padStart(2,"0")}${ap}` : `${h}${ap}`;
 };
-/* PostgREST returns "2026-09-05 10:00:00+00" — not parseable by Date() as-is */
+/* PostgREST returns "2026-09-05 10:00:00+00" - not parseable by Date() as-is */
 const ts = v => {
   if (!v) return null;
   const d = new Date(String(v).replace(" ", "T").replace(/([+-]\d{2})$/, "$1:00"));
@@ -96,7 +96,7 @@ async function load(){
 
   const want = kidFromPath();
   if (state.kids.some(k => k.slug === want)){
-    state.kid = want; state.locked = true;          // /sophia or /olivia — fixed
+    state.kid = want; state.locked = true;          // /sophia or /olivia - fixed
   } else {
     state.locked = false;
     let saved = null;
@@ -107,7 +107,7 @@ async function load(){
   renderFilter(); render(); renderFresh(); renderLog();
 }
 
-/* Kid filter: shown only on "/" — the per-kid URLs are already decided. */
+/* Kid filter: shown only on "/" - the per-kid URLs are already decided. */
 function renderFilter(){
   const host = document.querySelector("#kidfilter");
   if (!host) return;
@@ -238,7 +238,7 @@ function render(){
   if (info && info.day_number === null){
     const n = document.createElement("div");
     n.className = "notice";
-    n.textContent = "🎉 No school today" + (info.note ? " — " + info.note.replace(/\s*\(school closed\)/i,"") : "");
+    n.textContent = "🎉 No school today" + (info.note ? " - " + info.note.replace(/\s*\(school closed\)/i,"") : "");
     c.appendChild(n);
   }
 
@@ -271,7 +271,7 @@ function renderFresh(){
   el.querySelector(".more").textContent = " · " + bits.join(" · ");
 }
 
-/* Sync log: scheduled slot vs what actually ran. Reference only — folded away
+/* Sync log: scheduled slot vs what actually ran. Reference only - folded away
    behind the freshness line, muted, never competing with the kids' cards. */
 const OUTCOME = {
   error:     () => "failed",
@@ -331,7 +331,7 @@ function renderLog(){
     out.push(
       `<li data-status="${esc(r.status)}">
          <span class="pip"></span>
-         <span class="t">${when ? clock(when) : "—"}</span>
+         <span class="t">${when ? clock(when) : "-"}</span>
          <span class="s">${(Object.hasOwn(OUTCOME, r.status) ? OUTCOME[r.status] : OUTCOME.scheduled)(r)}${
            aside.length ? `<em>${aside.join(" · ")}</em>` : ""}</span>
        </li>` +

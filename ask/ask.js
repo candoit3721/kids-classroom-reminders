@@ -1,5 +1,5 @@
 /* ============================================================
-   Ask — conversational semantic search over the family corpus.
+   Ask - conversational semantic search over the family corpus.
 
    The page holds no secrets of its own. The Supabase anon key is
    public by design (RLS denies everything); the real gate is the
@@ -7,7 +7,7 @@
    It goes up as x-ask-token and is checked by the Edge Function,
    which is where the model keys actually live.
 
-   Conversation state lives in memory only — reloading starts fresh.
+   Conversation state lives in memory only - reloading starts fresh.
    ============================================================ */
 const SUPABASE_URL = "https://eusazkbcvscjxwpmddtp.supabase.co";
 const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImV1c2F6a2JjdnNjanh3cG1kZHRwIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODg1NzA4OTksImV4cCI6MjEwNDE0Njg5OX0.k7NexhNwyATa5-51t5APbjnJ61vex5ni0JvYLm4i77w";
@@ -26,7 +26,7 @@ const store = {
 };
 
 let kidScope = "";
-let history = [];          // [{q, a}] — the last few turns, sent up for context
+let history = [];          // [{q, a}] - the last few turns, sent up for context
 
 /* ---------------------------------------------------------- gate */
 function showAsk(){
@@ -100,7 +100,7 @@ async function call(question, token){
 /* Minimal, safe rendering: headings, paragraphs, bullets, numbered
    lists, **bold**. Runs line by line rather than block by block, because
    the model routinely puts a heading and its bullets in one block.
-   Everything is escaped first — no raw HTML from the model. */
+   Everything is escaped first - no raw HTML from the model. */
 const inline = s => esc(s)
   .replace(/\*\*(.+?)\*\*/g, "<strong>$1</strong>")
   .replace(/\(my suggestion\)/gi, '<em class="sugg">(my suggestion)</em>');
@@ -149,7 +149,7 @@ function turnEl(question, res){
     .map(s => `<a href="${esc(s.url)}" target="_blank" rel="noopener">${esc(s.label)}</a>`)
     .join("");
 
-  /* The count and the window are both optional — say nothing rather than
+  /* The count and the window are both optional - say nothing rather than
      "undefined notes consulted" when the function doesn't report them. */
   const n = Number(res.retrieved);
   const hasCount = res.retrieved != null && Number.isFinite(n) && n >= 0;

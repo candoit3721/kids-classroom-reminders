@@ -10,7 +10,7 @@ Everything here is kept in case the school later allowlists the app.
 - **OAuth client:** `classroom-collector-desktop` (Desktop app, Testing status)
 - **Client ID:** `321996577488-lh8hlhge8aq53duasm479t27ibobm9ln.apps.googleusercontent.com`
 - **Test users:** the two students' school accounts (added in the Google Auth Platform console, not recorded here)
-- **Scopes:** classroom.courses / announcements / coursework.me / courseworkmaterials — all `.readonly`
+- **Scopes:** classroom.courses / announcements / coursework.me / courseworkmaterials - all `.readonly`
 
 ## If access is granted
 

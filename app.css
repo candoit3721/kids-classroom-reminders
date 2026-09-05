@@ -2,7 +2,7 @@
   --bg:#f7f5f2; --card:#ffffff; --ink:#1c1a17; --muted:#6b6560; --line:#e6e1da;
   --accent:#5b21b6; --accent-soft:#ede9fe;
   --ok:#15803d; --warn:#b45309; --bad:#b91c1c;
-  /* per-kid identity colours — used for name tags even on the combined view */
+  /* per-kid identity colours - used for name tags even on the combined view */
   --k-violet:#5b21b6; --k-violet-soft:#ede9fe;
   --k-teal:#0f766e;   --k-teal-soft:#ccfbf1;
   --k-amber:#b45309;  --k-amber-soft:#fef3c7;
@@ -112,7 +112,7 @@ h2 .count{color:var(--accent)}
 .empty{color:var(--muted);text-align:center;padding:1.4rem 1rem;font-size:.95rem}
 .empty .big{font-size:2rem;display:block;margin-bottom:.3rem}
 
-/* freshness — deliberately quiet: footer only, small, muted */
+/* freshness - deliberately quiet: footer only, small, muted */
 footer{padding:.5rem 0 2rem;text-align:center}
 .fresh{
   display:inline-flex;align-items:center;gap:.4rem;color:var(--muted);
@@ -126,7 +126,7 @@ footer{padding:.5rem 0 2rem;text-align:center}
 .fresh::after{content:"⌄";opacity:.55;transition:transform .15s ease;line-height:1}
 .fresh[data-open="1"]::after{transform:rotate(180deg)}
 
-/* sync log — scheduled slot vs actual run. Reference only, so: small, muted,
+/* sync log - scheduled slot vs actual run. Reference only, so: small, muted,
    folded away, and never louder than the cards above it. */
 .synclog{
   max-width:23rem;margin:.4rem auto 0;padding:.7rem .85rem;text-align:left;
@@ -176,7 +176,7 @@ footer{padding:.5rem 0 2rem;text-align:center}
 /* ============================================================
    Responsive layout
    Mobile first (everything above). Below: iPad and desktop.
-   The DOM is flat — section > h2 > .daygroup > .card — so wide
+   The DOM is flat - section > h2 > .daygroup > .card - so wide
    layouts are built with grid spans rather than new markup.
    ============================================================ */
 
@@ -213,7 +213,7 @@ footer{padding:.5rem 0 2rem;text-align:center}
   body{ padding-bottom:4rem }
   .wrap{ max-width:1180px; padding:2rem 2rem 0 }
   /* Scoped to the day pages on purpose. Ask has its own column layout, and
-     an unscoped grid here once placed its <main> in the `auto` column —
+     an unscoped grid here once placed its <main> in the `auto` column -
      the composer shrank into the bottom-right corner. */
   .wrap.page-day{
     display:grid; grid-template-columns:1fr auto;

@@ -1,4 +1,4 @@
-# Collector & extractor spec — Kids Classroom Reminders
+# Collector & extractor spec - Kids Classroom Reminders
 
 Project: `eusazkbcvscjxwpmddtp` · Timezone: America/Toronto
 
@@ -8,7 +8,7 @@ everything.
 
 ---
 
-## 1. Identity — how a post is recognised across days
+## 1. Identity - how a post is recognised across days
 
 | Concept | Column | Changes when |
 |---|---|---|
@@ -26,7 +26,7 @@ everything.
 ⋮ menu → *Copy link* to get a per-post permalink. Do not fall back to the class
 URL. Without a stable id, an edited announcement looks like a brand new post.
 If a permalink genuinely can't be obtained, synthesise
-`syn:<class_id>:<slugified title>` — stable as long as the title doesn't change.
+`syn:<class_id>:<slugified title>` - stable as long as the title doesn't change.
 
 ---
 
@@ -43,10 +43,10 @@ Attachments are the slow part. Only open an attachment when the post's
 `content_hash` **or** `attachments_hash` changed, or the row is new. Otherwise
 reuse the stored `attachments` JSON.
 
-**Every attachment type counts — images included.** Docs, Sheets, Slides and
+**Every attachment type counts - images included.** Docs, Sheets, Slides and
 text PDFs are read as text; PNG/JPG attachments and scanned PDFs are opened in
 Drive, screenshotted, and read visually. A "Meet the Teacher" poster is an image
-and often carries the highest-value content in the whole class stream — the
+and often carries the highest-value content in the whole class stream - the
 first version of this collector wrote `"(image poster introducing the teacher;
 not text-extracted)"` into `extracted_text` and silently lost every teacher
 profile in both classes.
@@ -63,7 +63,7 @@ to keep the daily run bounded as the year goes on.
 
 ## 3. Writing raw items
 
-One call per post seen — never a raw INSERT:
+One call per post seen - never a raw INSERT:
 
 ```sql
 select * from upsert_raw_item(
@@ -109,7 +109,7 @@ where deleted_at is null
 ```
 
 New posts, edited posts, and everything when the prompt is improved. Nothing else.
-An unchanged post is never sent to the model twice — that's the cost control.
+An unchanged post is never sent to the model twice - that's the cost control.
 
 ---
 
@@ -145,7 +145,7 @@ Rules the prompt must state explicitly:
 - Emit **nothing** for information with no date and no action.
 - Resolve relative dates against the post's `posted_at` and the school calendar;
   if the post says "Day 5", leave `event_date` null and set
-  `"cycle_day": 5` instead — the DB resolves it via `day_cycle`.
+  `"cycle_day": 5` instead - the DB resolves it via `day_cycle`.
 - `confidence` below 0.7 for anything inferred rather than stated.
 
 Then one call per event:
@@ -260,7 +260,7 @@ Day 2 is Art. A pure vector search matches the *words* "next week" and will
 miss or invent the answer. So the window is parsed deterministically in the
 `ask` function and the agenda is read with a query; vector search enriches it.
 
-Anything the parser cannot read falls through to a null window — no date filter,
+Anything the parser cannot read falls through to a null window - no date filter,
 rather than a wrong one.
 
 ### People

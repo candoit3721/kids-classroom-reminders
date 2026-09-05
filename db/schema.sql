@@ -1,4 +1,4 @@
--- Kids Classroom Reminders — schema v1
+-- Kids Classroom Reminders - schema v1
 -- Postgres / Supabase. Small, structured, queried by kid + date. No vectors needed yet.
 
 create extension if not exists "pgcrypto";
@@ -10,7 +10,7 @@ create table if not exists kids (
   display_name text not null,
   grade        text,                              -- '6'
   google_email text unique,                       -- the student's school account
-  chrome_profile text,                            -- 'u/1' — which profile the collector uses
+  chrome_profile text,                            -- 'u/1' - which profile the collector uses
   theme        text default 'blue',               -- kid page colour
   view_token   text not null unique default encode(gen_random_bytes(16),'hex'),
   created_at   timestamptz not null default now()
@@ -85,7 +85,7 @@ create table if not exists day_cycle (
 );
 
 -- ------------------------------------------------------- recurring rules
--- Gym days, library day, French days — stored as rules, expanded on read.
+-- Gym days, library day, French days - stored as rules, expanded on read.
 create table if not exists recurring_rules (
   id          uuid primary key default gen_random_uuid(),
   kid_id      uuid not null references kids(id) on delete cascade,

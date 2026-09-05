@@ -18,7 +18,7 @@ Google Classroom ──(Claude in Chrome, 3x/day)──> raw_items
 
 | Path | What it is |
 |---|---|
-| `index.html` | entry page — both kids |
+| `index.html` | entry page - both kids |
 | `sophia/index.html`, `olivia/index.html` | per-kid entry pages |
 | `app.css`, `app.js` | the whole app, shared by all three pages |
 | `db/schema.sql` | reference snapshot of the schema (live DB is the source of truth) |
@@ -46,11 +46,11 @@ and no build.
 
 Which kid is shown comes from the last path segment; anything unrecognised
 falls back to the default view. On `/` a filter lets you narrow to one kid and
-the choice is remembered per browser. On the per-kid URLs the filter is hidden —
-the URL has already decided — so each kid can bookmark their own page and see
+the choice is remembered per browser. On the per-kid URLs the filter is hidden -
+the URL has already decided - so each kid can bookmark their own page and see
 only their own day. Pages redirects `/sophia` to `/sophia/` automatically.
 
-**HTTPS on the custom domain** needs a specific DNS record for the subdomain —
+**HTTPS on the custom domain** needs a specific DNS record for the subdomain -
 a wildcard `*.studyflix.vip` resolves, so GitHub's DNS check passes, but
 Let's Encrypt will not issue a certificate through a wildcard. Required:
 
@@ -75,20 +75,20 @@ Kid names and colours come from the database, not the file:
 update kids set display_name = 'Olivia', slug = 'olivia' where slug = 'sibling';
 ```
 
-Per-kid accent colours are keyed off the slug in CSS —
+Per-kid accent colours are keyed off the slug in CSS -
 `:root[data-kid="sibling"]` teal, `[data-kid="both"]` amber, default violet.
 
 ## Data access
 
 The browser reads four owner-owned views and never the base tables:
 
-- `v_public_kids` — names, grades, themes (never `view_token`)
-- `v_public_agenda` — published, non-superseded events, −7 to +120 days
-- `v_public_school_events` — kid-facing school calendar entries
-- `v_public_day_cycle` — Day 1–8 numbers and closures
-- `v_public_status` — collector freshness: last success, next scheduled run,
+- `v_public_kids` - names, grades, themes (never `view_token`)
+- `v_public_agenda` - published, non-superseded events, −7 to +120 days
+- `v_public_school_events` - kid-facing school calendar entries
+- `v_public_day_cycle` - Day 1–8 numbers and closures
+- `v_public_status` - collector freshness: last success, next scheduled run,
   and whether the last scheduled slot actually ran
-- `v_public_sync_log` — every scheduled slot for the last 3 days plus the next
+- `v_public_sync_log` - every scheduled slot for the last 3 days plus the next
   36 hours, joined to the run that actually executed it
 
 Base tables have RLS enabled with no policies, so the anon key returns zero
@@ -98,21 +98,21 @@ rows from them. Nothing in the page can write.
 
 The published page is public: anyone with the URL can see the kids' names and
 schedule. No addresses, grades or contact details are exposed. To lock it down
-later, `kids.view_token` already exists — add a `security definer` function
+later, `kids.view_token` already exists - add a `security definer` function
 that takes the token and read it from the query string.
 
 ## Operating notes
 
 - Collector: scheduled task **"Classroom collector (3x daily)"**, 6am / 4pm / 8pm
   Toronto. After the November time change it drifts to 5am / 3pm / 7pm.
-- New and materially-changed events land as `pending` — approve them before
+- New and materially-changed events land as `pending` - approve them before
   they reach the kids. `select * from v_review_queue;`
 - "Done" ticks live in each browser's `localStorage`; they are per-device and
   are not written back to the database.
 - The footer shows a quiet freshness line ("Synced 2 hours ago") with a green
   dot; it turns amber when a scheduled run was missed or failed. Tap it to open
   the **sync log**: the next scheduled slot, then the last dozen slots with what
-  each one actually did — `3 new, 1 updated`, `nothing new`, `didn't run`, or the
+  each one actually did - `3 new, 1 updated`, `nothing new`, `didn't run`, or the
   failure message. Reference only; nothing there is actionable from the page.
   If you change the schedule, update `collector_schedule` to match.
 - `collector_schedule` is the *intended* cron; `collection_runs` is what really

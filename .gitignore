@@ -1,4 +1,4 @@
-# OAuth client secret and tokens — never commit these
+# OAuth client secret and tokens - never commit these
 oauth/credentials.json
 oauth/token_*.json
 *.pem
