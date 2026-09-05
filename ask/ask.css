@@ -143,6 +143,11 @@ body.chatting .titlerow .today{ display:none }
 
 /* --- conversation thread -------------------------------------- */
 .thread{ display:flex; flex-direction:column; gap:.9rem; margin:0 0 1rem }
+#out{ display:flex; flex-direction:column; gap:.9rem; margin:0 0 1rem }
+/* Both collapse when empty. Otherwise the empty one still contributes its
+   bottom margin, and the pending turn shifts by 1rem the moment the answer
+   lands and moves from #out into #thread. */
+#out:empty, .thread:empty{ display:none; margin:0 }
 .turn{ display:flex; flex-direction:column; gap:.5rem }
 .qbubble{
   align-self:flex-end; max-width:min(90%, 46ch);
@@ -156,10 +161,6 @@ body.chatting .titlerow .today{ display:none }
   box-shadow:var(--shadow); padding:1rem 1.1rem; margin:0
 }
 .answer p, .answer li{ max-width:70ch }
-.answer .who{
-  display:inline-block; margin:0 0 .5rem; padding:.12rem .6rem; border-radius:999px;
-  background:var(--accent-soft); color:var(--accent); font-size:.75rem; font-weight:700
-}
 .answer p{ margin:.5rem 0; line-height:1.6 }
 .answer p:first-of-type{ margin-top:0 }
 .answer ul, .answer ol{ margin:.5rem 0; padding-left:1.2rem }
@@ -177,7 +178,7 @@ body.chatting .titlerow .today{ display:none }
    thread doesn't jump the moment it lands. */
 .thinking{
   background:var(--card); border:1px solid var(--line); border-radius:var(--radius);
-  box-shadow:var(--shadow); padding:1rem 1.1rem; margin:0 0 1rem;
+  box-shadow:var(--shadow); padding:1rem 1.1rem; margin:0;
   align-self:flex-start; display:inline-flex; gap:6px; align-items:center;
 }
 .thinking span{

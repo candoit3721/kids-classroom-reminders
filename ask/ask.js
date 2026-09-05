@@ -187,11 +187,15 @@ function turnEl(question, res){
     .map(s => `<a href="${esc(s.url)}" target="_blank" rel="noopener">${esc(s.label)}</a>`)
     .join("");
 
-  /* The count and the window are both optional - say nothing rather than
-     "undefined notes consulted" when the function doesn't report them. */
+  /* Everything here describes how the answer was retrieved, not who wrote it.
+     res.person is the person the question was matched against, which narrows
+     the search; it used to render as a pill above the answer, where it read as
+     a byline and made replies look like they came from the teacher. Each part
+     is optional, so say nothing rather than "undefined notes consulted". */
   const n = Number(res.retrieved);
   const hasCount = res.retrieved != null && Number.isFinite(n) && n >= 0;
   const metaBits = [];
+  if (res.person) metaBits.push(`about ${esc(res.person)}`);
   if (res.window?.label) metaBits.push(esc(res.window.label));
   if (hasCount) metaBits.push(`${n} note${n === 1 ? "" : "s"} consulted`);
   const meta = metaBits.length ? `<p class="meta">${metaBits.join(" · ")}</p>` : "";
@@ -205,7 +209,6 @@ function turnEl(question, res){
   el.innerHTML = `
     <div class="qbubble">${esc(question)}</div>
     <div class="answer">
-      ${res.person ? `<span class="who">${esc(res.person)}</span>` : ""}
       ${render(res.answer)}
       ${srcs ? `<p class="srcs"><span class="lbl">Sources</span>${srcs}</p>` : ""}
       ${meta}
@@ -220,9 +223,18 @@ async function submit(question){
 
   setEmpty(false);
   $("#go").disabled = true;
+  /* Show the question straight away, with the dots under it, so a pending
+     answer is visibly attached to what was asked. It is the same shape a
+     finished turn has, and #out sits directly below #thread, so the handover
+     is in place. Both containers collapse when empty (see ask.css) or the
+     turn would shift by the empty one's margin as it moves across. */
   $("#out").innerHTML =
-    `<div class="thinking" role="status" aria-label="Looking through what we know">` +
-    `<span></span><span></span><span></span></div>`;
+    `<div class="turn">
+       <div class="qbubble">${esc(question)}</div>
+       <div class="thinking" role="status" aria-label="Looking through what we know">
+         <span></span><span></span><span></span>
+       </div>
+     </div>`;
   $("#out").scrollIntoView({ behavior: "smooth", block: "end" });
 
   try {

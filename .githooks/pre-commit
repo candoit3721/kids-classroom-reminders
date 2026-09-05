@@ -10,7 +10,7 @@
 # only if they do, and there is no date-and-letter sequence to keep track of.
 set -e
 
-ASSETS="app.css app.js ask/ask.css ask/ask.js"
+ASSETS="app.css app.js ask/ask.css ask/ask.js documents/documents.css documents/documents.js"
 PAGES="index.html sophia/index.html olivia/index.html ask/index.html documents/index.html"
 
 staged=$(git diff --cached --name-only)
