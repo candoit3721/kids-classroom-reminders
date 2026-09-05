@@ -211,15 +211,18 @@ footer{padding:.5rem 0 2rem;text-align:center}
 /* --- desktop / iPad landscape --------------------------------- */
 @media (min-width:1024px){
   body{ padding-bottom:4rem }
-  .wrap{
-    max-width:1180px; padding:2rem 2rem 0;
+  .wrap{ max-width:1180px; padding:2rem 2rem 0 }
+  /* Scoped to the day pages on purpose. Ask has its own column layout, and
+     an unscoped grid here once placed its <main> in the `auto` column —
+     the composer shrank into the bottom-right corner. */
+  .wrap.page-day{
     display:grid; grid-template-columns:1fr auto;
     align-items:end; column-gap:1.5rem;
   }
-  .wrap > header{ grid-column:1; padding-bottom:0 }
-  .wrap > .controls{ grid-column:2; justify-self:end; margin:0 }
-  .wrap > #content, .wrap > footer{ grid-column:1/-1 }
-  .wrap > #content{ margin-top:1.5rem }
+  .wrap.page-day > header{ grid-column:1; padding-bottom:0 }
+  .wrap.page-day > .controls{ grid-column:2; justify-self:end; margin:0 }
+  .wrap.page-day > #content, .wrap.page-day > footer{ grid-column:1/-1 }
+  .wrap.page-day > #content{ margin-top:1.5rem }
 
   .hello{ font-size:2.25rem }
 

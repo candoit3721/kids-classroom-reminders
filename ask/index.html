@@ -6,14 +6,21 @@
 <title>Ask · School Day</title>
 <meta name="robots" content="noindex, nofollow">
 <meta name="theme-color" content="#f7f5f2">
-<link rel="stylesheet" href="../app.css?v=20260905a">
-<link rel="stylesheet" href="ask.css?v=20260905a">
+<link rel="stylesheet" href="../app.css?v=20260905b">
+<link rel="stylesheet" href="ask.css?v=20260905b">
 </head>
 <body>
 <div class="wrap">
-  <header>
-    <h1 class="hello">Ask</h1>
-    <p class="today">Anything about the girls' school life — what's coming up, what to bring, who's who.</p>
+  <header class="ask-head">
+    <a class="back" href="../">&larr; School Day</a>
+    <div class="titlerow">
+      <h1 class="hello">Ask</h1>
+      <p class="today">Anything about the girls' school life — what's coming up, what to bring, who's who.</p>
+      <span class="head-actions">
+        <button class="newthread" id="newthread" hidden>New conversation</button>
+        <button class="linkish" id="forget" hidden>Forget key</button>
+      </span>
+    </div>
   </header>
 
   <!-- gate: the key never ships in the page, it is typed once and kept locally -->
@@ -58,16 +65,9 @@
         <li>What would be a good end-of-year gift for Mrs. Hutchinson?</li>
       </ul>
 
-      <div class="composer-foot">
-        <a class="back" href="../">&larr; School Day</a>
-        <span class="foot-actions">
-          <button class="newthread" id="newthread" hidden>New conversation</button>
-          <button class="linkish" id="forget" hidden>Forget key</button>
-        </span>
-      </div>
     </div>
   </main>
 </div>
-<script src="ask.js?v=20260905a"></script>
+<script src="ask.js?v=20260905b"></script>
 </body>
 </html>

@@ -40,6 +40,7 @@ function showAsk(){
    conversation layout with the composer pinned at the bottom. */
 function setEmpty(on){
   $("#askui").classList.toggle("is-empty", on);
+  document.body.classList.toggle("chatting", !on);
   $("#newthread").hidden = on;
 }
 if (store.get()) showAsk(); else $("#unlock").hidden = false;
