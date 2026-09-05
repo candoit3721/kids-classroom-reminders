@@ -215,14 +215,58 @@ in the table for history but are never fetched. No client-side filtering needed.
 
 ---
 
-## 9. People and the knowledge layer
+## 9. The knowledge layer (semantic search)
 
-Some posts describe a *person*, not a date: teacher introductions, specialist
-bios, coach notes. They produce no events, and they are what answers "what
-would be a good gift for Mrs. Hutchinson".
+`sync_chunks()` projects the **whole corpus** into `doc_chunks`, the single
+embeddable table:
+
+| kind | source | window |
+|---|---|---|
+| `post` | `raw_items` title + body | posted_at → due_at |
+| `attachment` | each `attachments[].extracted_text`, split at ~1200 chars | posted_at → |
+| `rule` | `recurring_rules`, Day pattern written out in words | starts_on → ends_on |
+| `event` | `events` where `rule_id is null` (post-derived only) | event_date |
+| `school_event` | `school_events` | event_date → end_date |
+| `person_fact` | `person_facts` | undated |
+
+**Rule-expanded events are deliberately excluded.** Nine rules expand to ~1100
+near-identical rows ("Gym day - wear your PE uniform" ×500). Embedding those
+floods the index with duplicate vectors that dominate every search. The rule is
+embedded once, carrying its Day pattern; `agenda_window()` handles expansions.
+
+Chunks carry the same triad as raw items, plus a validity window:
+
+| Concept | Column | Changes when |
+|---|---|---|
+| Identity | `source_key` + `seq` | never |
+| Version | `content_hash` | the underlying text changes |
+| Freshness | `embedding_hash` | the embedder catches up |
+| Validity | `valid_from` / `valid_to` | the thing it describes moves |
+
+A chunk is pending exactly while `embedding_hash is distinct from content_hash`.
+
+### Retrieval is hybrid, and that is the point
+
+```
+"what should I bring next week?"
+   ├─ DATE PATH      resolveWindow() → agenda_window(from, to, kid)
+   │                 authoritative, arithmetic, no embeddings involved
+   └─ SEMANTIC PATH  search_chunks(embedding, …, from, to)
+                     supply lists, teacher notes, tryout slides
+```
+
+Embeddings cannot resolve "next week" to a date range, and cannot know that
+Day 2 is Art. A pure vector search matches the *words* "next week" and will
+miss or invent the answer. So the window is parsed deterministically in the
+`ask` function and the agenda is read with a query; vector search enriches it.
+
+Anything the parser cannot read falls through to a null window — no date filter,
+rather than a wrong one.
+
+### People
 
 ```sql
-select * from resolve_person('Mrs. Hutchinson');          -- name -> person row
+select * from resolve_person('Mrs. Hutchinson');
 select * from upsert_person_fact('Mrs. Hutchinson',
           'Favourite food: popcorn', 'food', 'classroom', :source_url);
 ```
@@ -230,21 +274,9 @@ select * from upsert_person_fact('Mrs. Hutchinson',
 `upsert_person_fact` is idempotent on (person, fact text), so re-reading the
 same poster every run costs nothing.
 
-`sync_chunks()` then projects `person_facts` and `raw_items` into `doc_chunks`,
-the single embeddable table. Chunks carry the same identity/version/liveness
-triad as raw items:
+### Safety
 
-| Concept | Column | Changes when |
-|---|---|---|
-| Identity | `doc_chunks.source_key` | never |
-| Version | `content_hash` | the underlying text changes |
-| Freshness | `embedding_hash` | the embedder catches up |
-
-A chunk is pending exactly while `embedding_hash is distinct from
-content_hash`. The `embed-pending` Edge Function drains that queue with
-`text-embedding-3-small`; the `ask` function embeds the question, resolves a
-person from it, filters to their chunks and ranks the rest by cosine distance.
-
-Retrieved text is teacher-authored and therefore untrusted: `ask` fences it in
-a `<context>` block and instructs the model to treat every word as data, never
-as instructions.
+Retrieved text is teacher-authored and therefore untrusted. `ask` fences it in
+`<context>` and instructs the model to treat every word as data, never as
+instructions. Model inferences must be labelled `(my suggestion)` so a real
+school requirement is never confused with a guess.
