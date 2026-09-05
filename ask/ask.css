@@ -1,0 +1,69 @@
+/* Ask — layered on app.css, reuses its tokens */
+:root{ --accent:#b45309; --accent-soft:#fef3c7 }
+@media (prefers-color-scheme:dark){ :root{ --accent:#fcd34d; --accent-soft:#43300b } }
+
+.unlock, .askform{
+  background:var(--card); border:1px solid var(--line); border-radius:var(--radius);
+  box-shadow:var(--shadow); padding:1rem; margin:0 0 1rem
+}
+.unlock .lead{margin:0 0 .75rem;color:var(--muted);font-size:.9rem}
+.unlock input, .askform textarea{
+  width:100%; font:inherit; color:var(--ink); background:var(--bg);
+  border:1px solid var(--line); border-radius:12px; padding:.6rem .75rem
+}
+.askform textarea{resize:vertical;min-height:3.2rem;line-height:1.45}
+.unlock input:focus, .askform textarea:focus{
+  outline:2px solid var(--accent); outline-offset:1px; border-color:transparent
+}
+.unlock button, .askform button[type=submit]{
+  margin-top:.6rem; font:inherit; font-weight:700; cursor:pointer;
+  background:var(--accent); color:var(--bg); border:0;
+  border-radius:999px; padding:.5rem 1.25rem
+}
+.askform button[type=submit]:disabled{opacity:.5;cursor:default}
+.unlock .hint{margin:.6rem 0 0;color:var(--bad);font-size:.85rem}
+
+.askrow{display:flex;gap:.6rem;align-items:center;justify-content:space-between;
+  flex-wrap:wrap;margin-top:.6rem}
+.askrow .seg button{
+  font:inherit;font-size:.85rem;font-weight:600;cursor:pointer;color:var(--muted);
+  background:transparent;border:0;border-radius:999px;padding:.3rem .8rem
+}
+.askrow .seg button.on{background:var(--accent-soft);color:var(--accent)}
+.askrow button[type=submit]{margin-top:0}
+
+/* answer */
+.answer{
+  background:var(--card);border:1px solid var(--line);border-radius:var(--radius);
+  box-shadow:var(--shadow);padding:1rem 1.1rem;margin:0 0 1rem
+}
+.answer .who{
+  display:inline-block;margin:0 0 .5rem;padding:.12rem .6rem;border-radius:999px;
+  background:var(--accent-soft);color:var(--accent);font-size:.75rem;font-weight:700
+}
+.answer p{margin:.5rem 0;line-height:1.6}
+.answer p:first-of-type{margin-top:0}
+.answer ul{margin:.5rem 0;padding-left:1.15rem}
+.answer li{margin:.25rem 0;line-height:1.55}
+.answer .srcs{margin:.9rem 0 0;padding-top:.7rem;border-top:1px solid var(--line);
+  font-size:.78rem;color:var(--muted)}
+.answer .srcs a{color:var(--muted);margin-right:.7rem}
+.answer .meta{margin:.5rem 0 0;font-size:.72rem;opacity:.55}
+.answer.err{border-color:var(--bad)}
+.answer.err p{color:var(--bad)}
+.thinking{color:var(--muted);font-size:.9rem;margin:0 0 1rem}
+.thinking::after{content:"…";animation:dots 1.2s steps(4,end) infinite}
+@keyframes dots{0%{opacity:.3}50%{opacity:1}100%{opacity:.3}}
+
+.examples{margin:0 0 1rem;font-size:.85rem;color:var(--muted)}
+.examples summary{cursor:pointer}
+.examples ul{margin:.5rem 0 0;padding-left:1.15rem}
+.examples li{margin:.25rem 0}
+.disclaimer{font-size:.75rem;color:var(--muted);opacity:.8;line-height:1.5;margin:0}
+
+footer{display:flex;justify-content:space-between;align-items:center;
+  gap:1rem;margin-top:1.5rem;font-size:.8rem}
+.back{color:var(--muted);text-decoration:none}
+.back:hover{color:var(--ink)}
+.linkish{background:none;border:0;color:var(--muted);font:inherit;font-size:.8rem;
+  cursor:pointer;text-decoration:underline;padding:0}

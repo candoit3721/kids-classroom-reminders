@@ -1,0 +1,67 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Ask · School Day</title>
+<meta name="robots" content="noindex, nofollow">
+<meta name="theme-color" content="#f7f5f2">
+<link rel="stylesheet" href="../app.css">
+<link rel="stylesheet" href="ask.css">
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <h1 class="hello">Ask</h1>
+    <p class="today">Anything about the girls' school life, teachers and contacts.</p>
+  </header>
+
+  <!-- gate: the key never ships in the page, it is typed once and kept locally -->
+  <form id="unlock" class="unlock" hidden>
+    <p class="lead">This page is private. Enter the access key to continue.</p>
+    <input type="password" id="tokenInput" placeholder="Access key"
+           autocomplete="current-password" spellcheck="false" required>
+    <button type="submit">Unlock</button>
+    <p class="hint" id="unlockErr" hidden>That key was rejected.</p>
+  </form>
+
+  <main id="askui" hidden>
+    <form id="askform" class="askform">
+      <textarea id="q" rows="2" placeholder="What would be a good gift for Ms. Hutchinson?"
+                maxlength="1000" required></textarea>
+      <div class="askrow">
+        <div class="seg" id="kidscope">
+          <button type="button" data-kid="" class="on">Everyone</button>
+          <button type="button" data-kid="sophia">Sophia</button>
+          <button type="button" data-kid="olivia">Olivia</button>
+        </div>
+        <button type="submit" id="go">Ask</button>
+      </div>
+    </form>
+
+    <div id="out"></div>
+
+    <details class="examples">
+      <summary>Things worth asking</summary>
+      <ul>
+        <li>What would be a good end-of-year gift for Ms. Hutchinson?</li>
+        <li>What do we know about Mme. Popovic?</li>
+        <li>Has anything come up about a field trip?</li>
+        <li>What does Olivia need to bring this week?</li>
+      </ul>
+    </details>
+
+    <p class="disclaimer">
+      Answers are generated from the facts stored in your own database. If nothing
+      is recorded, nothing is invented — add facts and ask again.
+    </p>
+  </main>
+
+  <footer>
+    <a class="back" href="../">&larr; Back to School Day</a>
+    <button class="linkish" id="forget" hidden>Forget key on this device</button>
+  </footer>
+</div>
+<script src="ask.js"></script>
+</body>
+</html>
