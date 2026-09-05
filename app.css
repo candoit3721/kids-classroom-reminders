@@ -188,10 +188,24 @@ footer{padding:.5rem 0 2rem;text-align:center}
 }
 
 /* --- iPad portrait -------------------------------------------- */
+/* From here up, every section flows its cards into as many columns
+   as fit. Day headings span the row so each day starts fresh. */
 @media (min-width:768px){
-  .wrap{ max-width:740px }
-  .card{ padding:1rem 1.1rem }
-  .card .title{ font-size:1.1rem }
+  .wrap{ max-width:820px }
+  .card{ padding:1rem 1.1rem; margin-bottom:0 }
+  .card .title{ font-size:1.05rem }
+
+  #content > section{
+    display:grid;
+    grid-template-columns:repeat(auto-fill, minmax(300px, 1fr));
+    gap:.7rem 1rem;
+    align-content:start;
+  }
+  #content > section > h2,
+  #content > section > .daygroup,
+  #content > section > .empty{ grid-column:1/-1 }
+  #content > section > h2{ margin-bottom:0 }
+  #content > section > .daygroup{ margin-top:.4rem }
 }
 
 /* --- desktop / iPad landscape --------------------------------- */
@@ -215,16 +229,9 @@ footer{padding:.5rem 0 2rem;text-align:center}
   #content > .notice{ grid-column:1/-1 }
   #content > section:nth-of-type(n+3){ grid-column:1/-1 }
 
-  /* the full-width section flows its cards into columns, with the
-     day headings spanning so each day starts a fresh row */
-  #content > section:nth-of-type(n+3){
-    display:grid;
-    grid-template-columns:repeat(auto-fill, minmax(310px, 1fr));
-    column-gap:1rem;
-  }
-  #content > section:nth-of-type(n+3) > h2,
-  #content > section:nth-of-type(n+3) > .daygroup,
-  #content > section:nth-of-type(n+3) > .empty{ grid-column:1/-1 }
+  /* Today and Tomorrow are half-width, so one column each; Coming up
+     is full width and keeps flowing into as many columns as fit. */
+  #content > section:nth-of-type(-n+2){ grid-template-columns:1fr }
 
   /* a pointer is available here, so the cards can respond to hover */
   .card{ transition:transform .12s ease, box-shadow .12s ease, opacity .2s ease }

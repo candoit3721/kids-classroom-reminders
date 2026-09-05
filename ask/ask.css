@@ -138,3 +138,5 @@ footer{display:flex;justify-content:space-between;align-items:center;
 /* the example list doubles as clickable starters */
 .examples li{ cursor:pointer }
 .examples li:hover{ color:var(--accent); text-decoration:underline }
+.answer ol{ margin:.5rem 0; padding-left:1.3rem }
+.answer ol li{ margin:.25rem 0; line-height:1.55 }

@@ -87,23 +87,48 @@ async function call(question, token){
   return body;
 }
 
-/* Minimal, safe rendering: headings, paragraphs, bullets, **bold**.
+/* Minimal, safe rendering: headings, paragraphs, bullets, numbered
+   lists, **bold**. Runs line by line rather than block by block, because
+   the model routinely puts a heading and its bullets in one block.
    Everything is escaped first — no raw HTML from the model. */
+const inline = s => esc(s)
+  .replace(/\*\*(.+?)\*\*/g, "<strong>$1</strong>")
+  .replace(/\(my suggestion\)/gi, '<em class="sugg">(my suggestion)</em>');
+
 function render(text){
-  return String(text).split(/\n{2,}/).map(block => {
-    const lines = block.split("\n").filter(l => l.trim());
-    if (!lines.length) return "";
-    const inline = s => esc(s)
-      .replace(/\*\*(.+?)\*\*/g, "<strong>$1</strong>")
-      .replace(/\(my suggestion\)/gi, '<em class="sugg">(my suggestion)</em>');
-    if (lines.every(l => /^\s*#{1,4}\s+/.test(l)))
-      return lines.map(l => `<h3>${inline(l.replace(/^\s*#{1,4}\s+/, ""))}</h3>`).join("");
-    if (lines.every(l => /^\s*[-*]\s+/.test(l)))
-      return `<ul>${lines.map(l => `<li>${inline(l.replace(/^\s*[-*]\s+/, ""))}</li>`).join("")}</ul>`;
-    return lines.map(l => /^\s*#{1,4}\s+/.test(l)
-      ? `<h3>${inline(l.replace(/^\s*#{1,4}\s+/, ""))}</h3>`
-      : `<p>${inline(l)}</p>`).join("");
-  }).join("");
+  const out = [];
+  let list = [], listTag = "ul";
+  const flush = () => {
+    if (list.length) out.push(`<${listTag}>${list.join("")}</${listTag}>`);
+    list = [];
+  };
+  for (const raw of String(text ?? "").split("\n")){
+    const l = raw.trim();
+    if (!l){ flush(); continue; }
+
+    const bullet = l.match(/^[-*+]\s+(.*)$/);
+    if (bullet){
+      if (listTag !== "ul"){ flush(); listTag = "ul"; }
+      list.push(`<li>${inline(bullet[1])}</li>`);
+      continue;
+    }
+    const numbered = l.match(/^\d{1,2}[.)]\s+(.*)$/);
+    if (numbered){
+      if (listTag !== "ol"){ flush(); listTag = "ol"; }
+      list.push(`<li>${inline(numbered[1])}</li>`);
+      continue;
+    }
+
+    flush(); listTag = "ul";
+    const heading = l.match(/^#{1,4}\s+(.*)$/);
+    if (heading){ out.push(`<h3>${inline(heading[1])}</h3>`); continue; }
+    // a short bold-only line reads as a heading too
+    const boldOnly = l.match(/^\*\*(.+)\*\*:?$/);
+    if (boldOnly && boldOnly[1].length < 40){ out.push(`<h3>${inline(boldOnly[1])}</h3>`); continue; }
+    out.push(`<p>${inline(l)}</p>`);
+  }
+  flush();
+  return out.join("");
 }
 
 function turnEl(question, res){
