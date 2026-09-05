@@ -12,3 +12,6 @@ node_modules/
 
 # local tool settings
 .claude/
+
+# downloaded school portal documents (originals kept for re-extraction)
+school-portal/
