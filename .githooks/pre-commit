@@ -11,7 +11,7 @@
 set -e
 
 ASSETS="app.css app.js ask/ask.css ask/ask.js"
-PAGES="index.html sophia/index.html olivia/index.html ask/index.html"
+PAGES="index.html sophia/index.html olivia/index.html ask/index.html documents/index.html"
 
 staged=$(git diff --cached --name-only)
 touched=0

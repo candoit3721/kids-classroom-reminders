@@ -225,6 +225,7 @@ body.chatting .titlerow .today{ display:none }
 
 .back{ color:var(--muted); text-decoration:none }
 .back:hover{ color:var(--ink) }
+a.linkish{ text-decoration:underline }
 .newthread, .linkish{
   background:none; border:0; color:var(--muted); font:inherit; font-size:.75rem;
   cursor:pointer; text-decoration:underline; padding:0

@@ -1,0 +1,51 @@
+/* Documents — layered on app.css */
+:root{ --accent:#b45309; --accent-soft:#fef3c7 }
+@media (prefers-color-scheme:dark){ :root{ --accent:#fcd34d; --accent-soft:#43300b } }
+
+.doc-head{ padding:.25rem 0 .5rem }
+.doc-head .back{ display:inline-block; font-size:.75rem; margin-bottom:.15rem; color:var(--muted); text-decoration:none }
+.titlerow{ display:flex; align-items:baseline; gap:.7rem; flex-wrap:wrap }
+.titlerow .hello{ margin:0 }
+.titlerow .today{ margin:0; flex:1 1 16rem }
+.summary{ margin:.6rem 0 0; font-size:.82rem; color:var(--muted) }
+.summary strong{ color:var(--ink); font-weight:700 }
+
+.group{ margin:0 0 1.5rem }
+.group h2{ display:flex; align-items:baseline; gap:.5rem }
+.group h2 .n{ color:var(--muted); font-weight:600; letter-spacing:0; text-transform:none; font-size:.75rem }
+
+.doc{
+  background:var(--card); border:1px solid var(--line); border-radius:var(--radius);
+  box-shadow:var(--shadow); padding:.8rem .95rem; margin-bottom:.55rem;
+  display:grid; grid-template-columns:1fr auto; gap:.3rem .8rem; align-items:start
+}
+.doc.oos{ opacity:.55; border-style:dashed; box-shadow:none }
+.doc .t{ font-weight:700; font-size:1rem; letter-spacing:-.01em; margin:0 }
+.doc .t a{ color:inherit; text-decoration:none }
+.doc .t a:hover{ text-decoration:underline }
+.doc .s{ grid-column:1; color:var(--muted); font-size:.8rem; margin:0 }
+.doc .badges{ grid-column:2; grid-row:1 / span 2; display:flex; flex-direction:column; gap:.3rem; align-items:flex-end }
+.badge{
+  font-size:.68rem; font-weight:800; text-transform:uppercase; letter-spacing:.05em;
+  padding:.12rem .5rem; border-radius:999px; background:var(--accent-soft); color:var(--accent); white-space:nowrap
+}
+.badge.sophia{ background:var(--k-violet-soft); color:var(--k-violet) }
+.badge.olivia{ background:var(--k-teal-soft);   color:var(--k-teal) }
+.badge.both{ background:var(--k-amber-soft); color:var(--k-amber) }
+.badge.wide{ background:var(--accent-soft); color:var(--accent) }
+.badge.oos{ background:transparent; color:var(--muted); box-shadow:inset 0 0 0 1px var(--line) }
+.badge.warn{ background:transparent; color:var(--bad); box-shadow:inset 0 0 0 1px var(--bad) }
+.doc .meta{ grid-column:1 / -1; display:flex; flex-wrap:wrap; gap:.3rem .8rem; font-size:.72rem; color:var(--muted); margin:.15rem 0 0 }
+.doc .meta .k{ opacity:.7 }
+.doc .meta .note{ color:var(--bad) }
+
+.doc-foot{ text-align:left; padding:1rem 0 2rem; font-size:.75rem; color:var(--muted); line-height:1.5 }
+
+@media (min-width:768px){
+  #content{ display:block }
+  .group .docs{ display:grid; grid-template-columns:repeat(auto-fill, minmax(320px, 1fr)); gap:.6rem }
+  .doc{ margin-bottom:0 }
+}
+@media (min-width:1024px){
+  .wrap{ display:block; max-width:1180px }
+}

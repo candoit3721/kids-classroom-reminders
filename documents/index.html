@@ -1,0 +1,42 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Documents · School Day</title>
+<meta name="robots" content="noindex, nofollow">
+<meta name="theme-color" content="#f7f5f2">
+<link rel="stylesheet" href="../app.css?v=20260905c">
+<link rel="stylesheet" href="documents.css?v=20260905c">
+</head>
+<body>
+<div class="wrap">
+  <header class="doc-head">
+    <a class="back" href="../">&larr; School Day</a>
+    <div class="titlerow">
+      <h1 class="hello">Documents</h1>
+      <p class="today">Everything from the school portal that Ask can draw on — what it is, who it applies to, and when it was last checked.</p>
+    </div>
+    <p class="summary" id="summary">Loading…</p>
+  </header>
+
+  <div class="controls">
+    <div class="seg" id="scope">
+      <button type="button" data-scope="" aria-pressed="true">All</button>
+      <button type="button" data-scope="sophia" aria-pressed="false">Sophia</button>
+      <button type="button" data-scope="olivia" aria-pressed="false">Olivia</button>
+    </div>
+    <label class="toggle" id="oosToggle" data-on="0">
+      <input type="checkbox" id="showOos"> Show out-of-scope
+    </label>
+  </div>
+
+  <div id="content"><div class="skeleton"></div><div class="skeleton"></div></div>
+
+  <footer class="doc-foot">
+    <p>Text is extracted server-side from the portal's files, kept in the database, and embedded for semantic search. Restricted Google Docs are fetched through a signed-in browser during a sweep. Out-of-scope items (Upper School, Children's House, Grade 7+) are registered but never retrieved.</p>
+  </footer>
+</div>
+<script src="documents.js?v=20260905c"></script>
+</body>
+</html>
