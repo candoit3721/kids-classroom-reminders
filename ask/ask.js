@@ -1,16 +1,19 @@
 /* ============================================================
-   Ask — semantic Q&A over the family knowledge base.
+   Ask — conversational semantic search over the family corpus.
 
    The page holds no secrets of its own. The Supabase anon key is
    public by design (RLS denies everything); the real gate is the
-   access key, which is typed once and kept in localStorage on this
-   device only. It is sent as x-ask-token and checked by the Edge
-   Function, which is where the model keys actually live.
+   access key, typed once and kept in localStorage on this device.
+   It goes up as x-ask-token and is checked by the Edge Function,
+   which is where the model keys actually live.
+
+   Conversation state lives in memory only — reloading starts fresh.
    ============================================================ */
 const SUPABASE_URL = "https://eusazkbcvscjxwpmddtp.supabase.co";
 const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImV1c2F6a2JjdnNjanh3cG1kZHRwIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODg1NzA4OTksImV4cCI6MjEwNDE0Njg5OX0.k7NexhNwyATa5-51t5APbjnJ61vex5ni0JvYLm4i77w";
 const ASK_URL = `${SUPABASE_URL}/functions/v1/ask`;
 const KEY_STORE = "askToken";
+const MAX_TURNS = 4;
 
 const $ = s => document.querySelector(s);
 const esc = s => String(s ?? "").replace(/[&<>"']/g, c =>
@@ -23,6 +26,7 @@ const store = {
 };
 
 let kidScope = "";
+let history = [];          // [{q, a}] — the last few turns, sent up for context
 
 /* ---------------------------------------------------------- gate */
 function showAsk(){
@@ -31,7 +35,6 @@ function showAsk(){
   $("#forget").hidden = false;
   $("#q").focus();
 }
-
 if (store.get()) showAsk(); else $("#unlock").hidden = false;
 
 $("#unlock").addEventListener("submit", async e => {
@@ -39,17 +42,19 @@ $("#unlock").addEventListener("submit", async e => {
   const token = $("#tokenInput").value.trim();
   if (!token) return;
   $("#unlockErr").hidden = true;
-  // Validate by asking something trivial; a bad key comes back 401.
-  const res = await call("ping", token).catch(() => null);
-  if (res === null){ $("#unlockErr").hidden = false; return; }
+  const ok = await call("ping", token).then(() => true).catch(() => false);
+  if (!ok){ $("#unlockErr").hidden = false; return; }
   store.set(token);
   $("#tokenInput").value = "";
   showAsk();
 });
 
-$("#forget").addEventListener("click", () => {
-  store.clear();
-  location.reload();
+$("#forget").addEventListener("click", () => { store.clear(); location.reload(); });
+$("#newthread").addEventListener("click", () => {
+  history = [];
+  $("#thread").innerHTML = "";
+  $("#newthread").hidden = true;
+  $("#q").focus();
 });
 
 /* ------------------------------------------------------ kid scope */
@@ -70,7 +75,11 @@ async function call(question, token){
       "x-ask-token": token,
       "Content-Type": "application/json"
     },
-    body: JSON.stringify({ question, kid: kidScope || null })
+    body: JSON.stringify({
+      question,
+      kid: kidScope || null,
+      history: history.slice(-MAX_TURNS)
+    })
   });
   if (r.status === 401) throw new Error("unauthorized");
   const body = await r.json().catch(() => ({}));
@@ -78,23 +87,52 @@ async function call(question, token){
   return body;
 }
 
-/* Minimal, safe rendering: paragraphs, bullets, **bold**. No raw HTML. */
+/* Minimal, safe rendering: headings, paragraphs, bullets, **bold**.
+   Everything is escaped first — no raw HTML from the model. */
 function render(text){
-  const blocks = String(text).split(/\n{2,}/);
-  return blocks.map(b => {
-    const lines = b.split("\n").filter(l => l.trim());
-    const bullets = lines.filter(l => /^\s*[-*]\s+/.test(l));
-    const bold = s => esc(s).replace(/\*\*(.+?)\*\*/g, "<strong>$1</strong>");
-    if (bullets.length === lines.length && lines.length){
-      return `<ul>${lines.map(l => `<li>${bold(l.replace(/^\s*[-*]\s+/, ""))}</li>`).join("")}</ul>`;
-    }
-    return `<p>${bold(b)}</p>`;
+  return String(text).split(/\n{2,}/).map(block => {
+    const lines = block.split("\n").filter(l => l.trim());
+    if (!lines.length) return "";
+    const inline = s => esc(s)
+      .replace(/\*\*(.+?)\*\*/g, "<strong>$1</strong>")
+      .replace(/\(my suggestion\)/gi, '<em class="sugg">(my suggestion)</em>');
+    if (lines.every(l => /^\s*#{1,4}\s+/.test(l)))
+      return lines.map(l => `<h3>${inline(l.replace(/^\s*#{1,4}\s+/, ""))}</h3>`).join("");
+    if (lines.every(l => /^\s*[-*]\s+/.test(l)))
+      return `<ul>${lines.map(l => `<li>${inline(l.replace(/^\s*[-*]\s+/, ""))}</li>`).join("")}</ul>`;
+    return lines.map(l => /^\s*#{1,4}\s+/.test(l)
+      ? `<h3>${inline(l.replace(/^\s*#{1,4}\s+/, ""))}</h3>`
+      : `<p>${inline(l)}</p>`).join("");
   }).join("");
 }
 
-$("#askform").addEventListener("submit", async e => {
-  e.preventDefault();
-  const question = $("#q").value.trim();
+function turnEl(question, res){
+  const el = document.createElement("div");
+  el.className = "turn";
+
+  const srcs = (res.sources || []).filter(s => s.url)
+    .map(s => `<a href="${esc(s.url)}" target="_blank" rel="noopener">${esc(s.label)}</a>`)
+    .join("");
+
+  const fus = (res.followups || []).length
+    ? `<div class="followups"><p class="fu-label">Ask next</p>${
+        res.followups.map(f => `<button type="button" data-q="${esc(f)}">${esc(f)}</button>`).join("")
+      }</div>`
+    : "";
+
+  el.innerHTML = `
+    <div class="qbubble">${esc(question)}</div>
+    <div class="answer">
+      ${res.person ? `<span class="who">${esc(res.person)}</span>` : ""}
+      ${render(res.answer)}
+      ${srcs ? `<p class="srcs"><span class="lbl">Sources</span>${srcs}</p>` : ""}
+      <p class="meta">${res.window ? `${esc(res.window.label)} · ` : ""}${res.retrieved} note${res.retrieved === 1 ? "" : "s"} consulted</p>
+      ${fus}
+    </div>`;
+  return el;
+}
+
+async function submit(question){
   const token = store.get();
   if (!question || !token) return;
 
@@ -103,26 +141,39 @@ $("#askform").addEventListener("submit", async e => {
 
   try {
     const res = await call(question, token);
-    const srcs = (res.sources || [])
-      .filter(s => s.url)
-      .map(s => `<a href="${esc(s.url)}" target="_blank" rel="noopener">${esc(s.label)}</a>`)
-      .join("");
-    $("#out").innerHTML = `
-      <div class="answer">
-        ${res.person ? `<span class="who">${esc(res.person)}</span>` : ""}
-        ${render(res.answer)}
-        ${srcs ? `<p class="srcs">Sources: ${srcs}</p>` : ""}
-        <p class="meta">${res.retrieved} note${res.retrieved === 1 ? "" : "s"} consulted</p>
-      </div>`;
+    $("#out").innerHTML = "";
+    const el = turnEl(question, res);
+    $("#thread").appendChild(el);
+    $("#newthread").hidden = false;
+    history.push({ q: question, a: res.answer });
+    if (history.length > MAX_TURNS) history = history.slice(-MAX_TURNS);
+    el.scrollIntoView({ behavior: "smooth", block: "nearest" });
   } catch (err) {
-    if (err.message === "unauthorized"){
-      store.clear();
-      location.reload();
-      return;
-    }
+    if (err.message === "unauthorized"){ store.clear(); location.reload(); return; }
     $("#out").innerHTML =
       `<div class="answer err"><p>Couldn't answer that: ${esc(err.message)}</p></div>`;
   } finally {
     $("#go").disabled = false;
   }
+}
+
+$("#askform").addEventListener("submit", e => {
+  e.preventDefault();
+  const q = $("#q").value.trim();
+  if (!q) return;
+  $("#q").value = "";
+  submit(q);
+});
+
+/* Enter sends, Shift+Enter makes a new line */
+$("#q").addEventListener("keydown", e => {
+  if (e.key === "Enter" && !e.shiftKey){ e.preventDefault(); $("#askform").requestSubmit(); }
+});
+
+/* follow-up chips and the example list both just ask the question */
+document.addEventListener("click", e => {
+  const chip = e.target.closest(".followups button[data-q]");
+  if (chip){ submit(chip.dataset.q); return; }
+  const ex = e.target.closest(".examples li");
+  if (ex){ submit(ex.textContent.trim()); }
 });

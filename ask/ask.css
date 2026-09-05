@@ -67,3 +67,74 @@ footer{display:flex;justify-content:space-between;align-items:center;
 .back:hover{color:var(--ink)}
 .linkish{background:none;border:0;color:var(--muted);font:inherit;font-size:.8rem;
   cursor:pointer;text-decoration:underline;padding:0}
+
+/* ============================================================
+   Responsive + conversation
+   ============================================================ */
+
+/* The main page turns .wrap into a two-column grid at desktop.
+   Ask is a reading column, so opt out and cap the measure. */
+@media (min-width:1024px){
+  .wrap{ display:block; max-width:860px; padding:2rem 2rem 0 }
+}
+@media (min-width:600px){
+  .askform textarea{ min-height:3.6rem; font-size:1.02rem }
+}
+
+/* --- conversation thread -------------------------------------- */
+.thread{ display:flex; flex-direction:column; gap:.9rem; margin:0 0 1rem }
+
+.turn{ display:flex; flex-direction:column; gap:.5rem }
+.qbubble{
+  align-self:flex-end; max-width:min(90%, 46ch);
+  background:var(--accent-soft); color:var(--accent);
+  border-radius:16px 16px 4px 16px; padding:.55rem .85rem;
+  font-weight:600; line-height:1.45
+}
+.answer{ margin:0 }
+.answer p, .answer li{ max-width:70ch }
+
+/* --- follow-up chips ------------------------------------------ */
+.followups{
+  display:flex; flex-wrap:wrap; gap:.4rem;
+  margin:.85rem 0 0; padding-top:.8rem; border-top:1px solid var(--line)
+}
+.followups .fu-label{
+  flex:0 0 100%; font-size:.7rem; font-weight:800; letter-spacing:.06em;
+  text-transform:uppercase; color:var(--muted); opacity:.7; margin:0 0 .1rem
+}
+.followups button{
+  font:inherit; font-size:.82rem; font-weight:600; line-height:1.3;
+  color:var(--accent); background:var(--accent-soft);
+  border:1px solid transparent; border-radius:999px;
+  padding:.34rem .7rem; cursor:pointer; text-align:left;
+  transition:border-color .15s ease, transform .1s ease
+}
+.followups button:hover{ border-color:currentColor }
+.followups button:active{ transform:scale(.97) }
+
+/* --- sources: deduped, one line, quiet ------------------------- */
+.answer .srcs{ display:flex; flex-wrap:wrap; gap:.15rem .55rem; align-items:baseline }
+.answer .srcs .lbl{ font-weight:700; opacity:.8 }
+.answer .srcs a{ margin:0; text-decoration:none; border-bottom:1px solid var(--line) }
+.answer .srcs a:hover{ color:var(--ink); border-bottom-color:currentColor }
+
+.newthread{
+  background:none; border:0; color:var(--muted); font:inherit; font-size:.8rem;
+  cursor:pointer; text-decoration:underline; padding:0
+}
+@media (prefers-reduced-motion:reduce){
+  .followups button:active{ transform:none }
+}
+
+/* headings and the suggestion marker inside answers */
+.answer h3{
+  font-size:.95rem; font-weight:800; letter-spacing:-.01em;
+  margin:1rem 0 .3rem; color:var(--ink)
+}
+.answer h3:first-child{ margin-top:0 }
+.answer .sugg{ font-style:normal; font-size:.85em; opacity:.65 }
+
+/* the example list doubles as clickable starters */
+.examples li{ cursor:pointer }
+.examples li:hover{ color:var(--accent); text-decoration:underline }
