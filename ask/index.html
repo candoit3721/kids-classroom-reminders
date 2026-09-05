@@ -13,7 +13,7 @@
 <div class="wrap">
   <header>
     <h1 class="hello">Ask</h1>
-    <p class="today">Anything about the girls' school life, teachers and contacts.</p>
+    <p class="today">Anything about the girls' school life — what's coming up, what to bring, who's who.</p>
   </header>
 
   <!-- gate: the key never ships in the page, it is typed once and kept locally -->
@@ -27,7 +27,7 @@
 
   <main id="askui" hidden>
     <form id="askform" class="askform">
-      <textarea id="q" rows="2" placeholder="What would be a good gift for Ms. Hutchinson?"
+      <textarea id="q" rows="2" placeholder="What do the girls need for next week?"
                 maxlength="1000" required></textarea>
       <div class="askrow">
         <div class="seg" id="kidscope">
@@ -44,16 +44,20 @@
     <details class="examples">
       <summary>Things worth asking</summary>
       <ul>
-        <li>What would be a good end-of-year gift for Ms. Hutchinson?</li>
-        <li>What do we know about Mme. Popovic?</li>
-        <li>Has anything come up about a field trip?</li>
-        <li>What does Olivia need to bring this week?</li>
+        <li>What do I need to prepare for next week?</li>
+        <li>Is there any stationery I still need to buy?</li>
+        <li>What's on tomorrow?</li>
+        <li>When are the basketball tryouts and is there a Kiss and Go?</li>
+        <li>What's the uniform requirement for Grade 6 gym?</li>
+        <li>What would be a good end-of-year gift for Mrs. Hutchinson?</li>
       </ul>
     </details>
 
     <p class="disclaimer">
-      Answers are generated from the facts stored in your own database. If nothing
-      is recorded, nothing is invented — add facts and ask again.
+      Answers come from your own database — Classroom posts and their attachments,
+      the Day 1–8 timetables, the school calendar and teacher profiles. Dates are
+      read straight from the agenda; anything Claude reasons out on top of that is
+      marked <em>(my suggestion)</em>.
     </p>
   </main>
 
