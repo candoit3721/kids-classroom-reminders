@@ -1,0 +1,11 @@
+# OAuth client secret and tokens — never commit these
+oauth/credentials.json
+oauth/token_*.json
+*.pem
+
+# local
+.DS_Store
+__pycache__/
+*.pyc
+.venv/
+node_modules/

@@ -1,0 +1,391 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>School Day</title>
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="theme-color" content="#f7f5f2">
+<style>
+:root{
+  --bg:#f7f5f2; --card:#ffffff; --ink:#1c1a17; --muted:#6b6560; --line:#e6e1da;
+  --accent:#5b21b6; --accent-soft:#ede9fe;
+  --shadow:0 1px 2px rgba(20,14,8,.05), 0 6px 20px rgba(20,14,8,.05);
+  --radius:18px;
+}
+:root[data-kid="sibling"]{ --accent:#0f766e; --accent-soft:#ccfbf1; }
+:root[data-kid="both"]{ --accent:#b45309; --accent-soft:#fef3c7; }
+@media (prefers-color-scheme:dark){
+  :root{ --bg:#141312; --card:#1e1c1a; --ink:#f2efea; --muted:#a09a93; --line:#2e2b28;
+         --accent:#c4b5fd; --accent-soft:#2c2350;
+         --shadow:0 1px 2px rgba(0,0,0,.4), 0 8px 24px rgba(0,0,0,.35); }
+  :root[data-kid="sibling"]{ --accent:#5eead4; --accent-soft:#0d3b37; }
+  :root[data-kid="both"]{ --accent:#fcd34d; --accent-soft:#43300b; }
+}
+*{box-sizing:border-box}
+html,body{margin:0}
+body{
+  background:var(--bg); color:var(--ink);
+  font:16px/1.5 ui-rounded,"SF Pro Rounded",system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;
+  -webkit-font-smoothing:antialiased;
+  padding:env(safe-area-inset-top) env(safe-area-inset-right) 4rem env(safe-area-inset-left);
+}
+.wrap{max-width:640px;margin:0 auto;padding:1rem 1rem 0}
+
+/* ---------- header ---------- */
+header{padding:.5rem 0 1rem}
+.hello{font-size:1.75rem;font-weight:800;letter-spacing:-.02em;margin:0}
+.today{color:var(--muted);font-size:.95rem;margin:.2rem 0 0}
+.daypill{display:inline-block;margin-left:.5rem;padding:.1rem .55rem;border-radius:999px;
+  background:var(--accent-soft);color:var(--accent);font-weight:700;font-size:.8rem;vertical-align:1px}
+
+/* ---------- controls ---------- */
+.controls{display:flex;gap:.5rem;flex-wrap:wrap;align-items:center;margin:.75rem 0 1.25rem}
+.seg{display:flex;background:var(--card);border:1px solid var(--line);border-radius:999px;padding:3px;box-shadow:var(--shadow)}
+.seg button{
+  appearance:none;border:0;background:transparent;color:var(--muted);
+  font:inherit;font-weight:700;font-size:.9rem;padding:.4rem .9rem;border-radius:999px;cursor:pointer;
+}
+.seg button[aria-pressed="true"]{background:var(--accent);color:#fff}
+@media (prefers-color-scheme:dark){ .seg button[aria-pressed="true"]{color:#141312} }
+.toggle{
+  display:inline-flex;align-items:center;gap:.45rem;background:var(--card);border:1px solid var(--line);
+  border-radius:999px;padding:.45rem .8rem;font-size:.85rem;font-weight:600;color:var(--muted);
+  cursor:pointer;box-shadow:var(--shadow);user-select:none
+}
+.toggle input{accent-color:var(--accent);margin:0}
+.toggle[data-on="1"]{color:var(--accent)}
+
+/* ---------- sections ---------- */
+section{margin:0 0 1.6rem}
+h2{font-size:.8rem;text-transform:uppercase;letter-spacing:.1em;color:var(--muted);
+   margin:0 0 .6rem .2rem;font-weight:800}
+h2 .count{color:var(--accent)}
+
+/* ---------- cards ---------- */
+.card{
+  background:var(--card);border:1px solid var(--line);border-radius:var(--radius);
+  padding:.85rem .95rem;margin-bottom:.6rem;box-shadow:var(--shadow);
+  display:grid;grid-template-columns:auto 1fr auto;gap:.8rem;align-items:start;
+  cursor:pointer;transition:transform .12s ease, opacity .2s ease;
+}
+.card:active{transform:scale(.985)}
+.card .emoji{font-size:1.7rem;line-height:1.2;width:2rem;text-align:center}
+.card .title{font-weight:700;font-size:1.05rem;margin:0;letter-spacing:-.01em}
+.card .meta{color:var(--muted);font-size:.83rem;margin:.15rem 0 0;display:flex;gap:.45rem;flex-wrap:wrap}
+.card .meta b{color:var(--accent);font-weight:700}
+.card .who{
+  font-size:.7rem;font-weight:800;text-transform:uppercase;letter-spacing:.05em;
+  padding:.1rem .45rem;border-radius:999px;background:var(--accent-soft);color:var(--accent);
+}
+.tick{
+  appearance:none;border:2px solid var(--line);background:transparent;width:1.6rem;height:1.6rem;
+  border-radius:50%;cursor:pointer;flex:none;display:grid;place-items:center;color:transparent;
+  font-size:.95rem;font-weight:900;transition:all .15s ease
+}
+.tick:hover{border-color:var(--accent)}
+.card.done{opacity:.45}
+.card.done .title{text-decoration:line-through}
+.card.done .tick{background:var(--accent);border-color:var(--accent);color:#fff}
+@media (prefers-color-scheme:dark){ .card.done .tick{color:#141312} }
+.detail{grid-column:1/-1;border-top:1px solid var(--line);margin-top:.7rem;padding-top:.7rem;
+  color:var(--muted);font-size:.9rem}
+.detail a{color:var(--accent);font-weight:600}
+.card[data-open="0"] .detail{display:none}
+
+.daygroup{display:flex;align-items:baseline;gap:.5rem;margin:1.1rem .2rem .5rem}
+.daygroup:first-of-type{margin-top:0}
+.daygroup .d{font-weight:800;font-size:.95rem;letter-spacing:-.01em}
+.daygroup .n{color:var(--muted);font-size:.8rem}
+.daygroup .pill{margin-left:auto;font-size:.7rem;font-weight:800;color:var(--accent);
+  background:var(--accent-soft);padding:.1rem .45rem;border-radius:999px}
+.daygroup.off .d{color:var(--muted)}
+
+/* school events read a little quieter */
+.card.school{background:transparent;border-style:dashed}
+
+/* ---------- notices ---------- */
+.notice{
+  background:var(--accent-soft);color:var(--accent);border-radius:var(--radius);
+  padding:.9rem 1rem;font-weight:700;margin-bottom:1rem;text-align:center
+}
+.empty{color:var(--muted);text-align:center;padding:1.4rem 1rem;font-size:.95rem}
+.empty .big{font-size:2rem;display:block;margin-bottom:.3rem}
+footer{color:var(--muted);font-size:.75rem;text-align:center;padding:1rem 0 2rem}
+footer button{appearance:none;border:0;background:none;color:var(--accent);font:inherit;
+  font-weight:700;cursor:pointer;padding:0}
+.skeleton{height:74px;border-radius:var(--radius);background:var(--card);
+  border:1px solid var(--line);margin-bottom:.6rem;opacity:.6;
+  animation:pulse 1.4s ease-in-out infinite}
+@keyframes pulse{0%,100%{opacity:.45}50%{opacity:.75}}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <h1 class="hello" id="hello">School Day</h1>
+    <p class="today" id="todayline">Loading…</p>
+  </header>
+
+  <div class="controls">
+    <div class="seg" id="kidseg" role="group" aria-label="Whose day"></div>
+    <label class="toggle" id="schoolToggle" data-on="1">
+      <input type="checkbox" id="showSchool" checked> School events
+    </label>
+  </div>
+
+  <div id="content">
+    <div class="skeleton"></div><div class="skeleton"></div><div class="skeleton"></div>
+  </div>
+
+  <footer>
+    <span id="stamp"></span> · <button id="refresh">Refresh</button>
+  </footer>
+</div>
+
+<script>
+/* ============================================================
+   CONFIG — the only bit you may want to edit
+   ============================================================ */
+const SUPABASE_URL = "https://eusazkbcvscjxwpmddtp.supabase.co";
+const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImV1c2F6a2JjdnNjanh3cG1kZHRwIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODg1NzA4OTksImV4cCI6MjEwNDE0Njg5OX0.k7NexhNwyATa5-51t5APbjnJ61vex5ni0JvYLm4i77w";
+const TZ = "America/Toronto";
+const HORIZON_DAYS = 21;   // how far "Coming up" looks ahead
+
+/* ============================================================ */
+const $ = s => document.querySelector(s);
+const api = async (view, qs="") => {
+  const r = await fetch(`${SUPABASE_URL}/rest/v1/${view}?${qs}`, {
+    headers: { apikey: SUPABASE_ANON_KEY, Authorization: `Bearer ${SUPABASE_ANON_KEY}` }
+  });
+  if (!r.ok) throw new Error(`${view}: ${r.status} ${await r.text()}`);
+  return r.json();
+};
+
+/* dates as YYYY-MM-DD strings in the school's timezone — no Date parsing, no TZ bugs */
+const fmt = new Intl.DateTimeFormat("en-CA", { timeZone: TZ, year:"numeric", month:"2-digit", day:"2-digit" });
+const todayISO = () => fmt.format(new Date());
+const addDays = (iso, n) => {
+  const [y,m,d] = iso.split("-").map(Number);
+  const t = new Date(Date.UTC(y, m-1, d + n));
+  return t.toISOString().slice(0,10);
+};
+const pretty = iso => {
+  const [y,m,d] = iso.split("-").map(Number);
+  return new Date(Date.UTC(y,m-1,d)).toLocaleDateString("en-CA",
+    { timeZone:"UTC", weekday:"long", month:"long", day:"numeric" });
+};
+const shortDay = iso => {
+  const [y,m,d] = iso.split("-").map(Number);
+  return new Date(Date.UTC(y,m-1,d)).toLocaleDateString("en-CA",
+    { timeZone:"UTC", weekday:"long" });
+};
+const time12 = t => {
+  if (!t) return null;
+  let [h,mi] = t.split(":").map(Number);
+  const ap = h >= 12 ? "pm" : "am";
+  h = h % 12 || 12;
+  return mi ? `${h}:${String(mi).padStart(2,"0")}${ap}` : `${h}${ap}`;
+};
+const ICONS = { due:"📌", bring:"🎒", test:"📝", tryout:"⭐", practice:"🏃", form:"📋",
+                gym:"👟", library:"📚", french:"🇫🇷", trip:"🚌", info:"ℹ️",
+                closure:"🏡", break:"🏡", pa_day:"🏡", spirit:"🎨", photo:"📸",
+                concert:"🎵", athletics:"🏅", conference:"👋", report_card:"📄" };
+
+const state = { kid:"both", school:true, kids:[], events:[], school_events:[], days:{}, open:new Set() };
+const doneKey = e => `done:${e.kid_slug||"school"}:${e.event_date}:${e.kid_title}`;
+const isDone = e => { try { return localStorage.getItem(doneKey(e)) === "1"; } catch { return false; } };
+const setDone = (e,v) => { try { v ? localStorage.setItem(doneKey(e),"1") : localStorage.removeItem(doneKey(e)); } catch {} };
+
+async function load(){
+  const from = addDays(todayISO(), -1), to = addDays(todayISO(), HORIZON_DAYS);
+  const [kids, ev, se, dc] = await Promise.all([
+    api("v_public_kids", "select=*"),
+    api("v_public_agenda", `select=*&event_date=gte.${from}&event_date=lte.${to}&order=event_date,start_time.nullsfirst`),
+    api("v_public_school_events", `select=*&order=event_date`),
+    api("v_public_day_cycle", `select=*&school_date=gte.${from}&school_date=lte.${to}`)
+  ]);
+  state.kids = kids.sort((a,b)=> Number(b.grade) - Number(a.grade));
+  state.events = ev;
+  state.school_events = se;
+  state.days = Object.fromEntries(dc.map(d => [d.school_date, d]));
+  try {
+    const saved = localStorage.getItem("kid");
+    if (saved && (saved==="both" || kids.some(k=>k.slug===saved))) state.kid = saved;
+  } catch {}
+  renderControls(); render();
+  $("#stamp").textContent = "Updated " + new Date().toLocaleTimeString("en-CA",
+    { timeZone:TZ, hour:"numeric", minute:"2-digit" });
+}
+
+function renderControls(){
+  const seg = $("#kidseg");
+  seg.innerHTML = "";
+  const opts = [...state.kids.map(k => ({v:k.slug, l:k.display_name})), {v:"both", l:"Both"}];
+  for (const o of opts){
+    const b = document.createElement("button");
+    b.textContent = o.l;
+    b.setAttribute("aria-pressed", state.kid === o.v);
+    b.onclick = () => { state.kid = o.v; try{localStorage.setItem("kid",o.v);}catch{}; renderControls(); render(); };
+    seg.appendChild(b);
+  }
+  document.documentElement.dataset.kid = state.kid;
+}
+
+/* school events -> the same card shape, expanded across multi-day ranges */
+function schoolCards(from, to){
+  const out = [];
+  for (const s of state.school_events){
+    let d = s.event_date, end = s.end_date || s.event_date;
+    while (d <= end){
+      if (d >= from && d <= to) out.push({
+        event_date: d, kid_title: s.title, icon: ICONS[s.category] || "🏫",
+        type: s.category, parent_detail: s.detail, start_time: null,
+        kid_slug: null, class_name: "School calendar", _school: true
+      });
+      d = addDays(d, 1);
+    }
+  }
+  return out;
+}
+
+function visible(from, to){
+  let ev = state.events.filter(e => e.event_date >= from && e.event_date <= to);
+  if (state.kid !== "both") ev = ev.filter(e => e.kid_slug === state.kid);
+  if (state.school) ev = ev.concat(schoolCards(from, to));
+  const rank = { closure:0, break:0, pa_day:0 };
+  return ev.sort((a,b) =>
+    a.event_date.localeCompare(b.event_date) ||
+    (rank[a.type] ?? 9) - (rank[b.type] ?? 9) ||
+    (a.start_time || "zz").localeCompare(b.start_time || "zz") ||
+    a.kid_title.localeCompare(b.kid_title));
+}
+
+function card(e, showDate){
+  const el = document.createElement("div");
+  el.className = "card" + (e._school ? " school" : "") + (isDone(e) ? " done" : "");
+  el.dataset.open = state.open.has(doneKey(e)) ? "1" : "0";
+
+  const kid = state.kids.find(k => k.slug === e.kid_slug);
+  const bits = [];
+  if (showDate) bits.push(`<b>${shortDay(e.event_date)}</b>`);
+  if (e.start_time) bits.push(time12(e.start_time) + (e.end_time ? `–${time12(e.end_time)}` : ""));
+  if (state.kid === "both" && kid) bits.push(`<span class="who">${kid.display_name}</span>`);
+  if (e._school) bits.push("School");
+
+  el.innerHTML = `
+    <div class="emoji">${e.icon || ICONS[e.type] || "•"}</div>
+    <div>
+      <p class="title">${esc(e.kid_title)}</p>
+      ${bits.length ? `<p class="meta">${bits.join("<span>·</span>")}</p>` : ""}
+    </div>
+    <button class="tick" aria-label="Mark done">✓</button>
+    <div class="detail">
+      ${e.parent_detail ? `<p style="margin:0 0 .5rem">${esc(e.parent_detail)}</p>` : ""}
+      ${e.class_name ? `<p style="margin:0 0 .5rem">${esc(e.class_name)}</p>` : ""}
+      ${e.source_url ? `<a href="${e.source_url}" target="_blank" rel="noopener">See the original post →</a>` : ""}
+    </div>`;
+
+  el.querySelector(".tick").onclick = ev => {
+    ev.stopPropagation();
+    const now = !isDone(e); setDone(e, now); el.classList.toggle("done", now);
+  };
+  el.onclick = () => {
+    const k = doneKey(e), open = el.dataset.open === "1";
+    el.dataset.open = open ? "0" : "1";
+    open ? state.open.delete(k) : state.open.add(k);
+  };
+  return el;
+}
+const esc = s => String(s ?? "").replace(/[&<>"]/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+
+function dayHeading(iso){
+  const info = state.days[iso], off = info && info.day_number === null;
+  const h = document.createElement("div");
+  h.className = "daygroup" + (off ? " off" : "");
+  const [y,m,d] = iso.split("-").map(Number);
+  const label = new Date(Date.UTC(y,m-1,d)).toLocaleDateString("en-CA",
+    { timeZone:"UTC", weekday:"long", month:"short", day:"numeric" });
+  const [wd, rest] = [label.split(",")[0], label.split(",").slice(1).join(",").trim()];
+  h.innerHTML = `<span class="d">${wd}</span><span class="n">${rest}</span>` +
+    (info && info.day_number ? `<span class="pill">Day ${info.day_number}</span>` :
+     off ? `<span class="pill">No school</span>` : "");
+  return h;
+}
+
+function section(title, items, mode, emptyMsg){
+  const s = document.createElement("section");
+  s.innerHTML = `<h2>${title}${items.length ? ` <span class="count">${items.length}</span>` : ""}</h2>`;
+  if (!items.length){
+    if (!emptyMsg) return null;
+    const d = document.createElement("div");
+    d.className = "empty"; d.innerHTML = emptyMsg;
+    s.appendChild(d);
+    return s;
+  }
+  if (mode === "grouped"){
+    let cur = null;
+    for (const e of items){
+      if (e.event_date !== cur){ cur = e.event_date; s.appendChild(dayHeading(cur)); }
+      s.appendChild(card(e, false));
+    }
+  } else items.forEach(e => s.appendChild(card(e, false)));
+  return s;
+}
+
+function render(){
+  const t = todayISO(), tom = addDays(t,1), end = addDays(t, HORIZON_DAYS);
+  const c = $("#content"); c.innerHTML = "";
+
+  const who = state.kid === "both" ? "Hey you two" :
+    `Hi ${state.kids.find(k=>k.slug===state.kid)?.display_name ?? ""}`;
+  $("#hello").textContent = who;
+  const dayInfo = state.days[t];
+  $("#todayline").innerHTML = pretty(t) +
+    (dayInfo?.day_number ? `<span class="daypill">Day ${dayInfo.day_number}</span>` : "");
+
+  if (dayInfo && dayInfo.day_number === null){
+    const n = document.createElement("div");
+    n.className = "notice";
+    n.textContent = "🎉 No school today" + (dayInfo.note ? " — " + dayInfo.note.replace(/\s*\(school closed\)/i,"") : "");
+    c.appendChild(n);
+  }
+
+  const sections = [
+    section("Today", visible(t,t), "flat",
+      `<span class="big">✨</span>Nothing on today. Enjoy it!`),
+    section("Tomorrow", visible(tom,tom), "flat",
+      `<span class="big">😌</span>Nothing tomorrow either.`),
+    section("Coming up", visible(addDays(t,2), end), "grouped", null)
+  ].filter(Boolean);
+
+  sections.forEach(s => c.appendChild(s));
+  if (!c.children.length) c.innerHTML = `<div class="empty"><span class="big">🌱</span>Nothing scheduled yet.</div>`;
+}
+
+/* wiring */
+$("#showSchool").onchange = e => {
+  state.school = e.target.checked;
+  $("#schoolToggle").dataset.on = state.school ? "1" : "0";
+  try { localStorage.setItem("school", state.school ? "1" : "0"); } catch {}
+  render();
+};
+$("#refresh").onclick = () => load().catch(fail);
+try {
+  if (localStorage.getItem("school") === "0"){
+    state.school = false; $("#showSchool").checked = false; $("#schoolToggle").dataset.on = "0";
+  }
+} catch {}
+
+function fail(err){
+  $("#content").innerHTML =
+    `<div class="empty"><span class="big">📡</span>Couldn't load right now.<br>
+     <small style="opacity:.7">${esc(err.message)}</small></div>`;
+}
+load().catch(fail);
+setInterval(() => load().catch(()=>{}), 15*60*1000);
+document.addEventListener("visibilitychange", () => { if (!document.hidden) load().catch(()=>{}); });
+</script>
+</body>
+</html>
