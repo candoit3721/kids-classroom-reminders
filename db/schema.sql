@@ -153,3 +153,24 @@ alter table day_cycle       enable row level security;
 alter table recurring_rules enable row level security;
 alter table checkoffs       enable row level security;
 alter table collection_runs enable row level security;
+
+-- ============================================================ v2 additions
+-- Collector freshness: the cron lives outside the DB, so record the slots here
+-- and expose "scheduled vs actual" as one row.
+create table if not exists collector_schedule (
+  slot_utc_hour   int primary key check (slot_utc_hour between 0 and 23),
+  slot_utc_minute int not null default 0,
+  label           text,
+  active          boolean not null default true
+);
+-- 10:00 / 20:00 / 00:00 UTC = 6am / 4pm / 8pm America/Toronto (EDT)
+
+-- collector_slots(from, to)      -> every scheduled instant in a window
+-- v_collector_status             -> last run, last success, prev/next slot, on_schedule
+-- v_public_status                -> the anon-readable projection the page reads
+
+-- ------------------------------------------------------- public read surface
+-- Base tables keep RLS on with no policies; these owner-owned views are the
+-- only thing granted to anon:
+--   v_public_kids, v_public_agenda, v_public_school_events,
+--   v_public_day_cycle, v_public_status
