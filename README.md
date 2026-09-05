@@ -40,13 +40,15 @@ and no build.
 
 | URL | Shows |
 |---|---|
-| `calendar.studyflix.vip/` | both kids, each card tagged with a name |
+| `calendar.studyflix.vip/` | both kids, with an All / Sophia / Olivia filter |
 | `calendar.studyflix.vip/sophia` | Sophia only |
 | `calendar.studyflix.vip/olivia` | Olivia only |
 
 Which kid is shown comes from the last path segment; anything unrecognised
-falls back to both. There is no in-page switcher — give each kid their own
-bookmark. Pages redirects `/sophia` to `/sophia/` automatically.
+falls back to the default view. On `/` a filter lets you narrow to one kid and
+the choice is remembered per browser. On the per-kid URLs the filter is hidden —
+the URL has already decided — so each kid can bookmark their own page and see
+only their own day. Pages redirects `/sophia` to `/sophia/` automatically.
 
 **HTTPS on the custom domain** needs a specific DNS record for the subdomain —
 a wildcard `*.studyflix.vip` resolves, so GitHub's DNS check passes, but

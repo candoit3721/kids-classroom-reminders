@@ -71,7 +71,7 @@ function kidFromPath(){
   return (seg || "").toLowerCase();
 }
 
-const state = { kid:"both", school:true, kids:[], events:[], school_events:[], days:{}, status:null, open:new Set() };
+const state = { kid:"both", locked:false, school:true, kids:[], events:[], school_events:[], days:{}, status:null, open:new Set() };
 const key = e => `done:${e.kid_slug||"school"}:${e.event_date}:${e.kid_title}`;
 const isDone  = e => { try { return localStorage.getItem(key(e)) === "1"; } catch { return false; } };
 const setDone = (e,v) => { try { v ? localStorage.setItem(key(e),"1") : localStorage.removeItem(key(e)); } catch {} };
@@ -93,10 +93,44 @@ async function load(){
   state.status = st[0] || null;
 
   const want = kidFromPath();
-  state.kid = state.kids.some(k => k.slug === want) ? want : "both";
-  document.documentElement.dataset.kid = state.kid;
+  if (state.kids.some(k => k.slug === want)){
+    state.kid = want; state.locked = true;          // /sophia or /olivia — fixed
+  } else {
+    state.locked = false;
+    let saved = null;
+    try { saved = localStorage.getItem("filter"); } catch {}
+    state.kid = state.kids.some(k => k.slug === saved) ? saved : "both";
+  }
 
-  render(); renderFresh();
+  renderFilter(); render(); renderFresh();
+}
+
+/* Kid filter: shown only on "/" — the per-kid URLs are already decided. */
+function renderFilter(){
+  const host = document.querySelector("#kidfilter");
+  if (!host) return;
+  host.innerHTML = "";
+  document.documentElement.dataset.kid = state.kid;
+  if (state.locked){ host.hidden = true; return; }
+  host.hidden = false;
+
+  const seg = document.createElement("div");
+  seg.className = "seg";
+  seg.setAttribute("role", "group");
+  seg.setAttribute("aria-label", "Whose day to show");
+  for (const o of [{v:"both", l:"All"}, ...state.kids.map(k => ({v:k.slug, l:k.display_name}))]){
+    const b = document.createElement("button");
+    b.type = "button";
+    b.textContent = o.l;
+    b.setAttribute("aria-pressed", String(state.kid === o.v));
+    b.onclick = () => {
+      state.kid = o.v;
+      try { localStorage.setItem("filter", o.v); } catch {}
+      renderFilter(); render();
+    };
+    seg.appendChild(b);
+  }
+  host.appendChild(seg);
 }
 
 function schoolCards(from, to){
