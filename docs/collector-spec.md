@@ -39,9 +39,22 @@ Do **not** re-read the entire year every day. The active set is:
    (`posted_at > now() - 45 days` **or** it has a live event dated in the future).
 3. Anything the previous run flagged as low confidence.
 
-Attachments are the slow part. Only open a Slides/Doc/PDF attachment when the
-post's `content_hash` **or** `attachments_hash` changed, or the row is new.
-Otherwise reuse the stored `attachments` JSON.
+Attachments are the slow part. Only open an attachment when the post's
+`content_hash` **or** `attachments_hash` changed, or the row is new. Otherwise
+reuse the stored `attachments` JSON.
+
+**Every attachment type counts — images included.** Docs, Sheets, Slides and
+text PDFs are read as text; PNG/JPG attachments and scanned PDFs are opened in
+Drive, screenshotted, and read visually. A "Meet the Teacher" poster is an image
+and often carries the highest-value content in the whole class stream — the
+first version of this collector wrote `"(image poster introducing the teacher;
+not text-extracted)"` into `extracted_text` and silently lost every teacher
+profile in both classes.
+
+Never write a placeholder into `extracted_text`. If an attachment genuinely
+cannot be opened, store `""` and report it, so the gap is visible rather than
+looking like an empty document. Rows whose `extracted_text` is empty or
+placeholder-shaped are re-opened on the next run.
 
 Set `watch = false` on posts that are pure archive (e.g. last term's material)
 to keep the daily run bounded as the year goes on.
@@ -166,6 +179,7 @@ select supersede_missing_events(:raw_item_id, :all_dedupe_keys_from_this_extract
 ```sql
 select expand_recurring_rules();      -- gym/library/French, 60 days out, idempotent
 select reconcile_deletions(:run_id);  -- retire posts missing 2 runs in a row
+select sync_chunks();                 -- refresh semantic-search chunks, idempotent
 update collection_runs set finished_at = now(), status = 'ok', ... where id = :run_id;
 ```
 
@@ -198,3 +212,39 @@ select * from v_kid_upcoming where kid_slug = 'sophia' order by event_date, star
 `v_kid_upcoming` is already filtered to `status='published'`,
 `superseded_at is null`, and `event_date >= today`. Past and retired events stay
 in the table for history but are never fetched. No client-side filtering needed.
+
+---
+
+## 9. People and the knowledge layer
+
+Some posts describe a *person*, not a date: teacher introductions, specialist
+bios, coach notes. They produce no events, and they are what answers "what
+would be a good gift for Mrs. Hutchinson".
+
+```sql
+select * from resolve_person('Mrs. Hutchinson');          -- name -> person row
+select * from upsert_person_fact('Mrs. Hutchinson',
+          'Favourite food: popcorn', 'food', 'classroom', :source_url);
+```
+
+`upsert_person_fact` is idempotent on (person, fact text), so re-reading the
+same poster every run costs nothing.
+
+`sync_chunks()` then projects `person_facts` and `raw_items` into `doc_chunks`,
+the single embeddable table. Chunks carry the same identity/version/liveness
+triad as raw items:
+
+| Concept | Column | Changes when |
+|---|---|---|
+| Identity | `doc_chunks.source_key` | never |
+| Version | `content_hash` | the underlying text changes |
+| Freshness | `embedding_hash` | the embedder catches up |
+
+A chunk is pending exactly while `embedding_hash is distinct from
+content_hash`. The `embed-pending` Edge Function drains that queue with
+`text-embedding-3-small`; the `ask` function embeds the question, resolves a
+person from it, filters to their chunks and ranks the rest by cosine distance.
+
+Retrieved text is teacher-authored and therefore untrusted: `ask` fences it in
+a `<context>` block and instructs the model to treat every word as data, never
+as instructions.
