@@ -35,6 +35,13 @@ function showAsk(){
   $("#forget").hidden = false;
   $("#q").focus();
 }
+
+/* is-empty centres the composer; the first answer swaps to the
+   conversation layout with the composer pinned at the bottom. */
+function setEmpty(on){
+  $("#askui").classList.toggle("is-empty", on);
+  $("#newthread").hidden = on;
+}
 if (store.get()) showAsk(); else $("#unlock").hidden = false;
 
 $("#unlock").addEventListener("submit", async e => {
@@ -53,7 +60,9 @@ $("#forget").addEventListener("click", () => { store.clear(); location.reload();
 $("#newthread").addEventListener("click", () => {
   history = [];
   $("#thread").innerHTML = "";
-  $("#newthread").hidden = true;
+  $("#out").innerHTML = "";
+  setEmpty(true);
+  autogrow();
   $("#q").focus();
 });
 
@@ -161,18 +170,19 @@ async function submit(question){
   const token = store.get();
   if (!question || !token) return;
 
+  setEmpty(false);
   $("#go").disabled = true;
   $("#out").innerHTML = `<p class="thinking">Looking through what we know</p>`;
+  $("#out").scrollIntoView({ behavior: "smooth", block: "end" });
 
   try {
     const res = await call(question, token);
     $("#out").innerHTML = "";
     const el = turnEl(question, res);
     $("#thread").appendChild(el);
-    $("#newthread").hidden = false;
     history.push({ q: question, a: res.answer });
     if (history.length > MAX_TURNS) history = history.slice(-MAX_TURNS);
-    el.scrollIntoView({ behavior: "smooth", block: "nearest" });
+    el.scrollIntoView({ behavior: "smooth", block: "start" });
   } catch (err) {
     if (err.message === "unauthorized"){ store.clear(); location.reload(); return; }
     $("#out").innerHTML =
@@ -182,11 +192,19 @@ async function submit(question){
   }
 }
 
+function autogrow(){
+  const t = $("#q");
+  t.style.height = "auto";
+  t.style.height = Math.min(t.scrollHeight, 144) + "px";
+}
+$("#q").addEventListener("input", autogrow);
+
 $("#askform").addEventListener("submit", e => {
   e.preventDefault();
   const q = $("#q").value.trim();
   if (!q) return;
   $("#q").value = "";
+  autogrow();
   submit(q);
 });
 

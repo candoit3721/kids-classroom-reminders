@@ -25,50 +25,48 @@
     <p class="hint" id="unlockErr" hidden>That key was rejected.</p>
   </form>
 
-  <main id="askui" hidden>
-    <form id="askform" class="askform">
-      <textarea id="q" rows="2" placeholder="What do the girls need for next week?"
-                maxlength="1000" required></textarea>
-      <div class="askrow">
-        <div class="seg" id="kidscope">
-          <button type="button" data-kid="" class="on">Everyone</button>
-          <button type="button" data-kid="sophia">Sophia</button>
-          <button type="button" data-kid="olivia">Olivia</button>
+  <!-- is-empty centres the composer; asking a question swaps it to the
+       conversation layout, answers above and the composer pinned below -->
+  <main id="askui" class="askui is-empty" hidden>
+
+    <div class="scroll">
+      <div id="thread" class="thread"></div>
+      <div id="out"></div>
+    </div>
+
+    <div class="composer">
+      <p class="lead-in">What would you like to know?</p>
+
+      <form id="askform" class="askform">
+        <textarea id="q" rows="1" placeholder="What do the girls need for next week?"
+                  maxlength="1000" required></textarea>
+        <div class="askrow">
+          <div class="seg" id="kidscope">
+            <button type="button" data-kid="" class="on">Everyone</button>
+            <button type="button" data-kid="sophia">Sophia</button>
+            <button type="button" data-kid="olivia">Olivia</button>
+          </div>
+          <button type="submit" id="go" aria-label="Ask">Ask</button>
         </div>
-        <button type="submit" id="go">Ask</button>
-      </div>
-    </form>
+      </form>
 
-    <div id="thread" class="thread"></div>
-    <div id="out"></div>
-
-    <details class="examples">
-      <summary>Things worth asking</summary>
-      <ul>
+      <ul class="examples">
         <li>What do I need to prepare for next week?</li>
         <li>Is there any stationery I still need to buy?</li>
         <li>What's on tomorrow?</li>
         <li>When are the basketball tryouts and is there a Kiss and Go?</li>
-        <li>What's the uniform requirement for Grade 6 gym?</li>
         <li>What would be a good end-of-year gift for Mrs. Hutchinson?</li>
       </ul>
-    </details>
 
-    <p class="disclaimer">
-      Answers come from your own database — Classroom posts and their attachments,
-      the Day 1–8 timetables, the school calendar and teacher profiles. Dates are
-      read straight from the agenda; anything Claude reasons out on top of that is
-      marked <em>(my suggestion)</em>.
-    </p>
+      <div class="composer-foot">
+        <a class="back" href="../">&larr; School Day</a>
+        <span class="foot-actions">
+          <button class="newthread" id="newthread" hidden>New conversation</button>
+          <button class="linkish" id="forget" hidden>Forget key</button>
+        </span>
+      </div>
+    </div>
   </main>
-
-  <footer>
-    <a class="back" href="../">&larr; Back to School Day</a>
-    <span>
-      <button class="newthread" id="newthread" hidden>New conversation</button>
-      <button class="linkish" id="forget" hidden>Forget key</button>
-    </span>
-  </footer>
 </div>
 <script src="ask.js"></script>
 </body>

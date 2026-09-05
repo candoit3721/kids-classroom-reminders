@@ -1,89 +1,119 @@
-/* Ask — layered on app.css, reuses its tokens */
+/* Ask — layered on app.css, reuses its tokens.
+   Ask uses the combined-view accent so it reads as "both girls". */
 :root{ --accent:#b45309; --accent-soft:#fef3c7 }
 @media (prefers-color-scheme:dark){ :root{ --accent:#fcd34d; --accent-soft:#43300b } }
 
-.unlock, .askform{
-  background:var(--card); border:1px solid var(--line); border-radius:var(--radius);
-  box-shadow:var(--shadow); padding:1rem; margin:0 0 1rem
+/* ============================================================
+   Chat layout
+   Empty: the composer sits in the middle of the page.
+   In conversation: answers scroll above, composer pinned below.
+   ============================================================ */
+body{ padding-bottom:0 }
+
+.wrap{
+  display:flex; flex-direction:column;
+  min-height:100vh; min-height:100dvh; max-width:820px;
 }
-.unlock .lead{margin:0 0 .75rem;color:var(--muted);font-size:.9rem}
-.unlock input, .askform textarea{
+@media (min-width:1024px){
+  .wrap{ display:flex; max-width:880px; padding:1.5rem 2rem 0 }
+}
+
+.askui{ display:flex; flex-direction:column; flex:1 1 auto; min-height:0 }
+.askui[hidden]{ display:none }
+
+.scroll{ flex:1 1 auto }
+
+.composer{
+  position:sticky; bottom:0; z-index:5;
+  background:var(--bg); padding-bottom:.75rem;
+  padding-bottom:calc(.75rem + env(safe-area-inset-bottom));
+}
+/* a short fade so content scrolling under the composer doesn't cut hard */
+.composer::before{
+  content:""; position:absolute; left:0; right:0; top:-1.25rem; height:1.25rem;
+  background:linear-gradient(to bottom, transparent, var(--bg));
+  pointer-events:none;
+}
+
+/* --- empty state ---------------------------------------------- */
+.askui.is-empty{ justify-content:center }
+.askui.is-empty .scroll{ display:none }
+.askui.is-empty .composer{ position:static; padding-bottom:0 }
+.askui.is-empty .composer::before{ display:none }
+
+.lead-in{
+  display:none; margin:0 0 .75rem; text-align:center;
+  font-size:1.15rem; font-weight:700; letter-spacing:-.01em; color:var(--ink)
+}
+.askui.is-empty .lead-in{ display:block }
+
+/* the examples are starters, so they belong to the empty state only */
+.examples{
+  list-style:none; margin:1rem 0 0; padding:0;
+  display:flex; flex-wrap:wrap; gap:.4rem; justify-content:center;
+}
+.askui:not(.is-empty) .examples{ display:none }
+.examples li{
+  font-size:.82rem; font-weight:600; line-height:1.3; cursor:pointer;
+  color:var(--muted); background:var(--card);
+  border:1px solid var(--line); border-radius:999px; padding:.34rem .7rem;
+  transition:color .15s ease, border-color .15s ease;
+}
+.examples li:hover{ color:var(--accent); border-color:var(--accent) }
+
+/* --- composer ------------------------------------------------- */
+.askform{
+  background:var(--card); border:1px solid var(--line); border-radius:var(--radius);
+  box-shadow:var(--shadow); padding:.75rem .8rem; margin:0;
+}
+.askform textarea{
+  width:100%; font:inherit; color:var(--ink); background:transparent;
+  border:0; padding:.15rem .1rem; resize:none; overflow-y:auto;
+  max-height:9rem; line-height:1.5;
+}
+.askform textarea:focus{ outline:none }
+.askform:focus-within{ border-color:var(--accent) }
+
+.askrow{ display:flex; gap:.6rem; align-items:center; justify-content:space-between;
+  flex-wrap:wrap; margin-top:.5rem }
+.askrow .seg{ box-shadow:none; background:var(--bg) }
+.askrow .seg button{
+  font:inherit; font-size:.82rem; font-weight:600; cursor:pointer; color:var(--muted);
+  background:transparent; border:0; border-radius:999px; padding:.28rem .7rem
+}
+.askrow .seg button.on{ background:var(--accent-soft); color:var(--accent) }
+.askform button[type=submit]{
+  font:inherit; font-weight:700; cursor:pointer; margin:0;
+  background:var(--accent); color:var(--bg); border:0;
+  border-radius:999px; padding:.45rem 1.15rem
+}
+.askform button[type=submit]:disabled{ opacity:.5; cursor:default }
+
+.composer-foot{
+  display:flex; justify-content:space-between; align-items:center; gap:1rem;
+  margin-top:.6rem; font-size:.75rem
+}
+.foot-actions{ display:flex; gap:.8rem }
+
+/* --- unlock gate ---------------------------------------------- */
+.unlock{
+  background:var(--card); border:1px solid var(--line); border-radius:var(--radius);
+  box-shadow:var(--shadow); padding:1rem; margin:auto 0
+}
+.unlock .lead{ margin:0 0 .75rem; color:var(--muted); font-size:.9rem }
+.unlock input{
   width:100%; font:inherit; color:var(--ink); background:var(--bg);
   border:1px solid var(--line); border-radius:12px; padding:.6rem .75rem
 }
-.askform textarea{resize:vertical;min-height:3.2rem;line-height:1.45}
-.unlock input:focus, .askform textarea:focus{
-  outline:2px solid var(--accent); outline-offset:1px; border-color:transparent
-}
-.unlock button, .askform button[type=submit]{
+.unlock input:focus{ outline:2px solid var(--accent); outline-offset:1px; border-color:transparent }
+.unlock button{
   margin-top:.6rem; font:inherit; font-weight:700; cursor:pointer;
-  background:var(--accent); color:var(--bg); border:0;
-  border-radius:999px; padding:.5rem 1.25rem
+  background:var(--accent); color:var(--bg); border:0; border-radius:999px; padding:.5rem 1.25rem
 }
-.askform button[type=submit]:disabled{opacity:.5;cursor:default}
-.unlock .hint{margin:.6rem 0 0;color:var(--bad);font-size:.85rem}
-
-.askrow{display:flex;gap:.6rem;align-items:center;justify-content:space-between;
-  flex-wrap:wrap;margin-top:.6rem}
-.askrow .seg button{
-  font:inherit;font-size:.85rem;font-weight:600;cursor:pointer;color:var(--muted);
-  background:transparent;border:0;border-radius:999px;padding:.3rem .8rem
-}
-.askrow .seg button.on{background:var(--accent-soft);color:var(--accent)}
-.askrow button[type=submit]{margin-top:0}
-
-/* answer */
-.answer{
-  background:var(--card);border:1px solid var(--line);border-radius:var(--radius);
-  box-shadow:var(--shadow);padding:1rem 1.1rem;margin:0 0 1rem
-}
-.answer .who{
-  display:inline-block;margin:0 0 .5rem;padding:.12rem .6rem;border-radius:999px;
-  background:var(--accent-soft);color:var(--accent);font-size:.75rem;font-weight:700
-}
-.answer p{margin:.5rem 0;line-height:1.6}
-.answer p:first-of-type{margin-top:0}
-.answer ul{margin:.5rem 0;padding-left:1.15rem}
-.answer li{margin:.25rem 0;line-height:1.55}
-.answer .srcs{margin:.9rem 0 0;padding-top:.7rem;border-top:1px solid var(--line);
-  font-size:.78rem;color:var(--muted)}
-.answer .srcs a{color:var(--muted);margin-right:.7rem}
-.answer .meta{margin:.5rem 0 0;font-size:.72rem;opacity:.55}
-.answer.err{border-color:var(--bad)}
-.answer.err p{color:var(--bad)}
-.thinking{color:var(--muted);font-size:.9rem;margin:0 0 1rem}
-.thinking::after{content:"…";animation:dots 1.2s steps(4,end) infinite}
-@keyframes dots{0%{opacity:.3}50%{opacity:1}100%{opacity:.3}}
-
-.examples{margin:0 0 1rem;font-size:.85rem;color:var(--muted)}
-.examples summary{cursor:pointer}
-.examples ul{margin:.5rem 0 0;padding-left:1.15rem}
-.examples li{margin:.25rem 0}
-.disclaimer{font-size:.75rem;color:var(--muted);opacity:.8;line-height:1.5;margin:0}
-
-footer{display:flex;justify-content:space-between;align-items:center;
-  gap:1rem;margin-top:1.5rem;font-size:.8rem}
-.back{color:var(--muted);text-decoration:none}
-.back:hover{color:var(--ink)}
-.linkish{background:none;border:0;color:var(--muted);font:inherit;font-size:.8rem;
-  cursor:pointer;text-decoration:underline;padding:0}
-
-/* ============================================================
-   Responsive + conversation
-   ============================================================ */
-
-/* The main page turns .wrap into a two-column grid at desktop.
-   Ask is a reading column, so opt out and cap the measure. */
-@media (min-width:1024px){
-  .wrap{ display:block; max-width:860px; padding:2rem 2rem 0 }
-}
-@media (min-width:600px){
-  .askform textarea{ min-height:3.6rem; font-size:1.02rem }
-}
+.unlock .hint{ margin:.6rem 0 0; color:var(--bad); font-size:.85rem }
 
 /* --- conversation thread -------------------------------------- */
 .thread{ display:flex; flex-direction:column; gap:.9rem; margin:0 0 1rem }
-
 .turn{ display:flex; flex-direction:column; gap:.5rem }
 .qbubble{
   align-self:flex-end; max-width:min(90%, 46ch);
@@ -91,8 +121,41 @@ footer{display:flex;justify-content:space-between;align-items:center;
   border-radius:16px 16px 4px 16px; padding:.55rem .85rem;
   font-weight:600; line-height:1.45
 }
-.answer{ margin:0 }
+
+.answer{
+  background:var(--card); border:1px solid var(--line); border-radius:var(--radius);
+  box-shadow:var(--shadow); padding:1rem 1.1rem; margin:0
+}
 .answer p, .answer li{ max-width:70ch }
+.answer .who{
+  display:inline-block; margin:0 0 .5rem; padding:.12rem .6rem; border-radius:999px;
+  background:var(--accent-soft); color:var(--accent); font-size:.75rem; font-weight:700
+}
+.answer p{ margin:.5rem 0; line-height:1.6 }
+.answer p:first-of-type{ margin-top:0 }
+.answer ul, .answer ol{ margin:.5rem 0; padding-left:1.2rem }
+.answer li{ margin:.25rem 0; line-height:1.55 }
+.answer h3{ font-size:.95rem; font-weight:800; letter-spacing:-.01em;
+  margin:1rem 0 .3rem; color:var(--ink) }
+.answer h3:first-child{ margin-top:0 }
+.answer .sugg{ font-style:normal; font-size:.85em; opacity:.65 }
+.answer .meta{ margin:.5rem 0 0; font-size:.72rem; opacity:.55 }
+.answer.err{ border-color:var(--bad) }
+.answer.err p{ color:var(--bad) }
+
+.thinking{ color:var(--muted); font-size:.9rem; margin:0 0 1rem }
+.thinking::after{ content:"…"; animation:dots 1.2s steps(4,end) infinite }
+@keyframes dots{ 0%{opacity:.3} 50%{opacity:1} 100%{opacity:.3} }
+
+/* --- sources: deduped, quiet ---------------------------------- */
+.answer .srcs{
+  display:flex; flex-wrap:wrap; gap:.15rem .55rem; align-items:baseline;
+  margin:.9rem 0 0; padding-top:.7rem; border-top:1px solid var(--line);
+  font-size:.78rem; color:var(--muted)
+}
+.answer .srcs .lbl{ font-weight:700; opacity:.8 }
+.answer .srcs a{ color:var(--muted); text-decoration:none; border-bottom:1px solid var(--line) }
+.answer .srcs a:hover{ color:var(--ink); border-bottom-color:currentColor }
 
 /* --- follow-up chips ------------------------------------------ */
 .followups{
@@ -113,30 +176,18 @@ footer{display:flex;justify-content:space-between;align-items:center;
 .followups button:hover{ border-color:currentColor }
 .followups button:active{ transform:scale(.97) }
 
-/* --- sources: deduped, one line, quiet ------------------------- */
-.answer .srcs{ display:flex; flex-wrap:wrap; gap:.15rem .55rem; align-items:baseline }
-.answer .srcs .lbl{ font-weight:700; opacity:.8 }
-.answer .srcs a{ margin:0; text-decoration:none; border-bottom:1px solid var(--line) }
-.answer .srcs a:hover{ color:var(--ink); border-bottom-color:currentColor }
-
-.newthread{
-  background:none; border:0; color:var(--muted); font:inherit; font-size:.8rem;
+.back{ color:var(--muted); text-decoration:none }
+.back:hover{ color:var(--ink) }
+.newthread, .linkish{
+  background:none; border:0; color:var(--muted); font:inherit; font-size:.75rem;
   cursor:pointer; text-decoration:underline; padding:0
+}
+.newthread:hover, .linkish:hover{ color:var(--ink) }
+
+@media (min-width:600px){
+  .askform textarea{ font-size:1.02rem }
+  .lead-in{ font-size:1.35rem }
 }
 @media (prefers-reduced-motion:reduce){
   .followups button:active{ transform:none }
 }
-
-/* headings and the suggestion marker inside answers */
-.answer h3{
-  font-size:.95rem; font-weight:800; letter-spacing:-.01em;
-  margin:1rem 0 .3rem; color:var(--ink)
-}
-.answer h3:first-child{ margin-top:0 }
-.answer .sugg{ font-style:normal; font-size:.85em; opacity:.65 }
-
-/* the example list doubles as clickable starters */
-.examples li{ cursor:pointer }
-.examples li:hover{ color:var(--accent); text-decoration:underline }
-.answer ol{ margin:.5rem 0; padding-left:1.3rem }
-.answer ol li{ margin:.25rem 0; line-height:1.55 }
