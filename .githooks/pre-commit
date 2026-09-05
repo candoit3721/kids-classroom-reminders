@@ -1,0 +1,45 @@
+#!/bin/sh
+# Bump the ?v= asset version whenever a versioned asset is part of the commit.
+#
+# GitHub Pages serves this repo verbatim, so there is no build step to
+# fingerprint assets for us. Without this, changing app.js and forgetting the
+# query string ships a deploy that returning visitors never see, because their
+# browser keeps the cached copy. That has already happened once.
+#
+# The version is a hash of the assets' *staged* content, so it changes if and
+# only if they do, and there is no date-and-letter sequence to keep track of.
+set -e
+
+ASSETS="app.css app.js ask/ask.css ask/ask.js"
+PAGES="index.html sophia/index.html olivia/index.html ask/index.html"
+
+staged=$(git diff --cached --name-only)
+touched=0
+for a in $ASSETS; do
+  if printf '%s\n' "$staged" | grep -qx "$a"; then touched=1; fi
+done
+[ "$touched" -eq 1 ] || exit 0
+
+# Refuse to run if a page carries unstaged edits: restaging it below would
+# sweep those into the commit behind your back.
+for p in $PAGES; do
+  if ! git diff --quiet -- "$p"; then
+    echo "pre-commit: $p has unstaged changes; stage or stash them first." >&2
+    exit 1
+  fi
+done
+
+new=$(for a in $ASSETS; do git show ":$a" 2>/dev/null || true; done \
+      | shasum | cut -c1-8)
+
+changed=""
+for p in $PAGES; do
+  perl -pi -e "s/\?v=[A-Za-z0-9]+/?v=$new/g" "$p"
+  if ! git diff --quiet -- "$p"; then
+    git add "$p"
+    changed="$changed $p"
+  fi
+done
+
+[ -n "$changed" ] && echo "pre-commit: asset version -> $new ($changed )"
+exit 0

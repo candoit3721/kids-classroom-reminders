@@ -356,8 +356,9 @@ $("#fresh").onclick = () => {
 };
 /* Ask is parent-only. Reveal the way in only where its key already lives, so
    the kids' pages stay clean; the key itself is still what guards the page. */
+const askLink = $("#asklink");          // only on "/" - the kids' pages omit it
 try {
-  if (localStorage.getItem("askToken")) $("#asklink").hidden = false;
+  if (askLink && localStorage.getItem("askToken")) askLink.hidden = false;
 } catch {}
 try {
   if (localStorage.getItem("school") === "0"){
