@@ -149,6 +149,15 @@ function turnEl(question, res){
     .map(s => `<a href="${esc(s.url)}" target="_blank" rel="noopener">${esc(s.label)}</a>`)
     .join("");
 
+  /* The count and the window are both optional — say nothing rather than
+     "undefined notes consulted" when the function doesn't report them. */
+  const n = Number(res.retrieved);
+  const hasCount = res.retrieved != null && Number.isFinite(n) && n >= 0;
+  const metaBits = [];
+  if (res.window?.label) metaBits.push(esc(res.window.label));
+  if (hasCount) metaBits.push(`${n} note${n === 1 ? "" : "s"} consulted`);
+  const meta = metaBits.length ? `<p class="meta">${metaBits.join(" · ")}</p>` : "";
+
   const fus = (res.followups || []).length
     ? `<div class="followups"><p class="fu-label">Ask next</p>${
         res.followups.map(f => `<button type="button" data-q="${esc(f)}">${esc(f)}</button>`).join("")
@@ -161,7 +170,7 @@ function turnEl(question, res){
       ${res.person ? `<span class="who">${esc(res.person)}</span>` : ""}
       ${render(res.answer)}
       ${srcs ? `<p class="srcs"><span class="lbl">Sources</span>${srcs}</p>` : ""}
-      <p class="meta">${res.window ? `${esc(res.window.label)} · ` : ""}${res.retrieved} note${res.retrieved === 1 ? "" : "s"} consulted</p>
+      ${meta}
       ${fus}
     </div>`;
   return el;
@@ -173,7 +182,9 @@ async function submit(question){
 
   setEmpty(false);
   $("#go").disabled = true;
-  $("#out").innerHTML = `<p class="thinking">Looking through what we know</p>`;
+  $("#out").innerHTML =
+    `<div class="thinking" role="status" aria-label="Looking through what we know">` +
+    `<span></span><span></span><span></span></div>`;
   $("#out").scrollIntoView({ behavior: "smooth", block: "end" });
 
   try {
