@@ -2,6 +2,11 @@
   --bg:#f7f5f2; --card:#ffffff; --ink:#1c1a17; --muted:#6b6560; --line:#e6e1da;
   --accent:#5b21b6; --accent-soft:#ede9fe;
   --ok:#15803d; --warn:#b45309;
+  /* per-kid identity colours — used for name tags even on the combined view */
+  --k-violet:#5b21b6; --k-violet-soft:#ede9fe;
+  --k-teal:#0f766e;   --k-teal-soft:#ccfbf1;
+  --k-amber:#b45309;  --k-amber-soft:#fef3c7;
+  --k-rose:#be123c;   --k-rose-soft:#ffe4e6;
   --shadow:0 1px 2px rgba(20,14,8,.05), 0 6px 20px rgba(20,14,8,.05);
   --radius:18px;
 }
@@ -10,6 +15,10 @@
 @media (prefers-color-scheme:dark){
   :root{ --bg:#141312; --card:#1e1c1a; --ink:#f2efea; --muted:#a09a93; --line:#2e2b28;
          --accent:#c4b5fd; --accent-soft:#2c2350; --ok:#4ade80; --warn:#fbbf24;
+         --k-violet:#c4b5fd; --k-violet-soft:#2c2350;
+         --k-teal:#5eead4;   --k-teal-soft:#0d3b37;
+         --k-amber:#fcd34d;  --k-amber-soft:#43300b;
+         --k-rose:#fda4af;   --k-rose-soft:#4c0519;
          --shadow:0 1px 2px rgba(0,0,0,.4), 0 8px 24px rgba(0,0,0,.35); }
   :root[data-kid="olivia"]{ --accent:#5eead4; --accent-soft:#0d3b37; }
   :root[data-kid="both"]{   --accent:#fcd34d; --accent-soft:#43300b; }
@@ -76,6 +85,10 @@ h2 .count{color:var(--accent)}
   font-size:.7rem;font-weight:800;text-transform:uppercase;letter-spacing:.05em;
   padding:.1rem .45rem;border-radius:999px;background:var(--accent-soft);color:var(--accent);
 }
+.card .who[data-theme="violet"]{ background:var(--k-violet-soft); color:var(--k-violet) }
+.card .who[data-theme="teal"]  { background:var(--k-teal-soft);   color:var(--k-teal) }
+.card .who[data-theme="amber"] { background:var(--k-amber-soft);  color:var(--k-amber) }
+.card .who[data-theme="rose"]  { background:var(--k-rose-soft);   color:var(--k-rose) }
 .tick{
   appearance:none;border:2px solid var(--line);background:transparent;width:1.6rem;height:1.6rem;
   border-radius:50%;cursor:pointer;flex:none;display:grid;place-items:center;color:transparent;

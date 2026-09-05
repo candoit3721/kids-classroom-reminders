@@ -167,7 +167,8 @@ function card(e){
   const kid = state.kids.find(k => k.slug === e.kid_slug);
   const bits = [];
   if (e.start_time) bits.push(time12(e.start_time) + (e.end_time ? `–${time12(e.end_time)}` : ""));
-  if (state.kid === "both" && kid) bits.push(`<span class="who">${esc(kid.display_name)}</span>`);
+  if (state.kid === "both" && kid)
+    bits.push(`<span class="who" data-theme="${esc(kid.theme || "")}">${esc(kid.display_name)}</span>`);
   if (e._school) bits.push("School");
   el.innerHTML = `
     <div class="emoji">${e.icon || ICONS[e.type] || "•"}</div>
