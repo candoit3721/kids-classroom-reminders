@@ -71,7 +71,7 @@ function kidFromPath(){
   return (seg || "").toLowerCase();
 }
 
-const state = { kid:"both", locked:false, school:true, kids:[], events:[], school_events:[], days:{}, status:null, open:new Set() };
+const state = { kid:"both", locked:false, school:true, kids:[], events:[], school_events:[], days:{}, status:null, runs:[], open:new Set() };
 const key = e => `done:${e.kid_slug||"school"}:${e.event_date}:${e.kid_title}`;
 const isDone  = e => { try { return localStorage.getItem(key(e)) === "1"; } catch { return false; } };
 const setDone = (e,v) => { try { v ? localStorage.setItem(key(e),"1") : localStorage.removeItem(key(e)); } catch {} };
@@ -79,18 +79,20 @@ const esc = s => String(s ?? "").replace(/[&<>"]/g, c => ({"&":"&amp;","<":"&lt;
 
 async function load(){
   const from = addDays(todayISO(), -1), to = addDays(todayISO(), HORIZON_DAYS);
-  const [kids, ev, se, dc, st] = await Promise.all([
+  const [kids, ev, se, dc, st, runs] = await Promise.all([
     api("v_public_kids", "select=*"),
     api("v_public_agenda", `select=*&event_date=gte.${from}&event_date=lte.${to}&order=event_date,start_time.nullsfirst`),
     api("v_public_school_events", "select=*&order=event_date"),
     api("v_public_day_cycle", `select=*&school_date=gte.${from}&school_date=lte.${to}`),
-    api("v_public_status", "select=*").catch(() => [])
+    api("v_public_status", "select=*").catch(() => []),
+    api("v_public_sync_log", "select=*&order=at.desc&limit=18").catch(() => [])
   ]);
   state.kids = kids.sort((a,b) => Number(b.grade) - Number(a.grade));
   state.events = ev;
   state.school_events = se;
   state.days = Object.fromEntries(dc.map(d => [d.school_date, d]));
   state.status = st[0] || null;
+  state.runs = runs;
 
   const want = kidFromPath();
   if (state.kids.some(k => k.slug === want)){
@@ -102,7 +104,7 @@ async function load(){
     state.kid = state.kids.some(k => k.slug === saved) ? saved : "both";
   }
 
-  renderFilter(); render(); renderFresh();
+  renderFilter(); render(); renderFresh(); renderLog();
 }
 
 /* Kid filter: shown only on "/" — the per-kid URLs are already decided. */
@@ -248,23 +250,95 @@ function render(){
   if (!c.children.length) c.innerHTML = `<div class="empty"><span class="big">🌱</span>Nothing scheduled yet.</div>`;
 }
 
-/* Freshness: quiet by default, detail on tap. */
+/* Freshness: one quiet line, always visible. */
 function renderFresh(){
   const el = $("#fresh"); if (!el) return;
   const s = state.status;
   const last = ts(s?.last_success_at), next = ts(s?.next_scheduled_at);
+  const failed = s?.last_run_status === "error";
+
   if (!last){
-    el.dataset.state = "unknown";
-    el.querySelector(".txt").textContent = "Waiting for first check";
+    el.dataset.state = failed ? "late" : "unknown";
+    el.querySelector(".txt").textContent = failed ? "Last sync failed" : "Waiting for first sync";
     el.querySelector(".more").textContent = next ? ` · next ${soon(next)}` : "";
     return;
   }
   el.dataset.state = s.on_schedule ? "ok" : "late";
-  el.querySelector(".txt").textContent = `Checked ${ago(last)}`;
+  el.querySelector(".txt").textContent = `Synced ${ago(last)}`;
   const bits = [`at ${clock(last)}`];
   if (next) bits.push(`next ${soon(next)}`);
-  if (!s.on_schedule) bits.push("last check was missed");
+  if (!s.on_schedule) bits.push(failed ? "last sync failed" : "last sync was missed");
   el.querySelector(".more").textContent = " · " + bits.join(" · ");
+}
+
+/* Sync log: scheduled slot vs what actually ran. Reference only — folded away
+   behind the freshness line, muted, never competing with the kids' cards. */
+const OUTCOME = {
+  error:     () => "failed",
+  running:   () => "running…",
+  missed:    () => "didn’t run",
+  due:       () => "no result yet",
+  scheduled: () => "scheduled",
+  ok: r => {
+    const bits = [];
+    if (r.events_new)     bits.push(`${r.events_new} new`);
+    if (r.events_updated) bits.push(`${r.events_updated} updated`);
+    return bits.length ? bits.join(", ") : "nothing new";
+  }
+};
+
+/* "Today" / "Yesterday" / "Wed, Sep 3" for a Toronto-local instant */
+function dayLabel(d){
+  const iso = fmt.format(d), t = todayISO();
+  if (iso === t)            return "Today";
+  if (iso === addDays(t,1)) return "Tomorrow";
+  if (iso === addDays(t,-1))return "Yesterday";
+  return asUTC(iso).toLocaleDateString("en-CA", { timeZone:"UTC", weekday:"short", month:"short", day:"numeric" });
+}
+
+const LOG_HISTORY = 12;   // enough to see a pattern, not a wall of dots
+
+function renderLog(){
+  const host = $("#synclog"); if (!host) return;
+  const rows = (state.runs || []).filter(r => ts(r.at));
+  if (!rows.length){
+    host.innerHTML = `<p class="logempty">No sync history yet.</p>`;
+    return;
+  }
+  /* the next scheduled slot, then history newest-first */
+  const now = Date.now();
+  const ahead = rows.filter(r => ts(r.at) > now).sort((a,b) => ts(a.at) - ts(b.at));
+  const past  = rows.filter(r => ts(r.at) <= now)
+                    .sort((a,b) => ts(b.at) - ts(a.at)).slice(0, LOG_HISTORY);
+
+  const out = [`<p class="loghead">Sync log<span>Google Classroom → this page</span></p>`, `<ol>`];
+  let day = null;
+  for (const r of ahead.slice(0,1).concat(past)){
+    const at = ts(r.at), ran = ts(r.started_at), slot = ts(r.slot_at);
+    const upcoming = at.getTime() > now;
+    const d = upcoming ? "Next" : dayLabel(at);
+    if (d !== day){ day = d; out.push(`<li class="dayhead">${esc(d)}</li>`); }
+
+    /* the actual execution is the headline time; the slot it belongs to is the aside */
+    const drifted = ran && slot && Math.abs(ran - slot) > 10*60000;
+    const when = ran || slot;
+    const aside = [];
+    if (upcoming && dayLabel(at) !== "Today") aside.push(esc(dayLabel(at).toLowerCase()));
+    if (r.label) aside.push(esc(r.label));
+    if (drifted) aside.push(`slot ${clock(slot)}`);
+    if (!slot && ran) aside.push("unscheduled");
+
+    out.push(
+      `<li data-status="${esc(r.status)}">
+         <span class="pip"></span>
+         <span class="t">${when ? clock(when) : "—"}</span>
+         <span class="s">${(Object.hasOwn(OUTCOME, r.status) ? OUTCOME[r.status] : OUTCOME.scheduled)(r)}${
+           aside.length ? `<em>${aside.join(" · ")}</em>` : ""}</span>
+       </li>` +
+      (r.error ? `<li class="logerr">${esc(r.error)}</li>` : ""));
+  }
+  out.push(`</ol>`, `<p class="logfoot">Scheduled 3× a day · times are Toronto</p>`);
+  host.innerHTML = out.join("");
 }
 
 /* wiring */
@@ -275,8 +349,10 @@ $("#showSchool").onchange = e => {
   render();
 };
 $("#fresh").onclick = () => {
-  const el = $("#fresh");
-  el.dataset.open = el.dataset.open === "1" ? "0" : "1";
+  const el = $("#fresh"), open = el.dataset.open === "1";
+  el.dataset.open = open ? "0" : "1";
+  el.setAttribute("aria-expanded", String(!open));
+  const log = $("#synclog"); if (log) log.hidden = open;
 };
 try {
   if (localStorage.getItem("school") === "0"){

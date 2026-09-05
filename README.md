@@ -88,6 +88,8 @@ The browser reads four owner-owned views and never the base tables:
 - `v_public_day_cycle` — Day 1–8 numbers and closures
 - `v_public_status` — collector freshness: last success, next scheduled run,
   and whether the last scheduled slot actually ran
+- `v_public_sync_log` — every scheduled slot for the last 3 days plus the next
+  36 hours, joined to the run that actually executed it
 
 Base tables have RLS enabled with no policies, so the anon key returns zero
 rows from them. Nothing in the page can write.
@@ -107,8 +109,14 @@ that takes the token and read it from the query string.
   they reach the kids. `select * from v_review_queue;`
 - "Done" ticks live in each browser's `localStorage`; they are per-device and
   are not written back to the database.
-- The footer shows a quiet freshness line ("Checked 2 hours ago") with a green
-  dot; it turns amber when a scheduled run was missed. Tap it for the detail.
+- The footer shows a quiet freshness line ("Synced 2 hours ago") with a green
+  dot; it turns amber when a scheduled run was missed or failed. Tap it to open
+  the **sync log**: the next scheduled slot, then the last dozen slots with what
+  each one actually did — `3 new, 1 updated`, `nothing new`, `didn't run`, or the
+  failure message. Reference only; nothing there is actionable from the page.
   If you change the schedule, update `collector_schedule` to match.
+- `collector_schedule` is the *intended* cron; `collection_runs` is what really
+  happened. A run that started more than 3 hours after a slot is reported as
+  `unscheduled` rather than being credited to that slot.
 - The school calendar is loaded through **June 18, 2027** (173 school days).
   Next August, re-run the calendar ingest for the new year.

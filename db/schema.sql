@@ -168,9 +168,16 @@ create table if not exists collector_schedule (
 -- collector_slots(from, to)      -> every scheduled instant in a window
 -- v_collector_status             -> last run, last success, prev/next slot, on_schedule
 -- v_public_status                -> the anon-readable projection the page reads
+-- v_public_sync_log              -> scheduled slot vs actual run, one row each,
+--                                   last 3 days + next 36h (the footer sync log)
+--
+-- Note: collector_schedule has RLS on with no policies and collector_slots() is
+-- a plain invoker-rights function, so calling it from a view still ran as the
+-- caller and anon saw zero slots. v_collector_status and v_public_sync_log
+-- therefore expand the schedule inline instead of calling collector_slots().
 
 -- ------------------------------------------------------- public read surface
 -- Base tables keep RLS on with no policies; these owner-owned views are the
 -- only thing granted to anon:
 --   v_public_kids, v_public_agenda, v_public_school_events,
---   v_public_day_cycle, v_public_status
+--   v_public_day_cycle, v_public_status, v_public_sync_log

@@ -28,9 +28,11 @@
   </div>
 
   <footer>
-    <button class="fresh" id="fresh" data-state="unknown" data-open="0" title="Tap for detail">
-      <span class="dot"></span><span class="txt">Checking…</span><span class="more"></span>
+    <button class="fresh" id="fresh" data-state="unknown" data-open="0"
+            aria-expanded="false" aria-controls="synclog" title="Tap for the sync log">
+      <span class="pip"></span><span class="txt">Checking…</span><span class="more"></span>
     </button>
+    <div class="synclog" id="synclog" hidden></div>
   </footer>
 </div>
 <script src="app.js"></script>

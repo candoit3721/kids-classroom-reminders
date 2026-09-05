@@ -1,7 +1,7 @@
 :root{
   --bg:#f7f5f2; --card:#ffffff; --ink:#1c1a17; --muted:#6b6560; --line:#e6e1da;
   --accent:#5b21b6; --accent-soft:#ede9fe;
-  --ok:#15803d; --warn:#b45309;
+  --ok:#15803d; --warn:#b45309; --bad:#b91c1c;
   /* per-kid identity colours — used for name tags even on the combined view */
   --k-violet:#5b21b6; --k-violet-soft:#ede9fe;
   --k-teal:#0f766e;   --k-teal-soft:#ccfbf1;
@@ -14,7 +14,7 @@
 :root[data-kid="both"]{   --accent:#b45309; --accent-soft:#fef3c7; }
 @media (prefers-color-scheme:dark){
   :root{ --bg:#141312; --card:#1e1c1a; --ink:#f2efea; --muted:#a09a93; --line:#2e2b28;
-         --accent:#c4b5fd; --accent-soft:#2c2350; --ok:#4ade80; --warn:#fbbf24;
+         --accent:#c4b5fd; --accent-soft:#2c2350; --ok:#4ade80; --warn:#fbbf24; --bad:#f87171;
          --k-violet:#c4b5fd; --k-violet-soft:#2c2350;
          --k-teal:#5eead4;   --k-teal-soft:#0d3b37;
          --k-amber:#fcd34d;  --k-amber-soft:#43300b;
@@ -118,11 +118,56 @@ footer{padding:.5rem 0 2rem;text-align:center}
   display:inline-flex;align-items:center;gap:.4rem;color:var(--muted);
   font-size:.72rem;background:none;border:0;font-family:inherit;cursor:pointer;padding:.3rem
 }
-.fresh .dot{width:6px;height:6px;border-radius:50%;background:var(--ok);flex:none;opacity:.75}
-.fresh[data-state="late"] .dot{background:var(--warn)}
-.fresh[data-state="unknown"] .dot{background:var(--muted);opacity:.5}
+.fresh .pip{width:6px;height:6px;border-radius:50%;background:var(--ok);flex:none;opacity:.75}
+.fresh[data-state="late"] .pip{background:var(--warn)}
+.fresh[data-state="unknown"] .pip{background:var(--muted);opacity:.5}
 .fresh .more{display:none;opacity:.85}
 .fresh[data-open="1"] .more{display:inline}
+.fresh::after{content:"⌄";opacity:.55;transition:transform .15s ease;line-height:1}
+.fresh[data-open="1"]::after{transform:rotate(180deg)}
+
+/* sync log — scheduled slot vs actual run. Reference only, so: small, muted,
+   folded away, and never louder than the cards above it. */
+.synclog{
+  max-width:23rem;margin:.4rem auto 0;padding:.7rem .85rem;text-align:left;
+  background:var(--card);border:1px solid var(--line);border-radius:14px;
+  box-shadow:var(--shadow);font-size:.72rem;color:var(--muted)
+}
+.synclog .loghead{
+  display:flex;justify-content:space-between;align-items:baseline;gap:.5rem;
+  margin:0 0 .5rem;font-weight:700;color:var(--ink);letter-spacing:.01em
+}
+.synclog .loghead span{font-weight:500;font-size:.68rem;opacity:.7;text-align:right}
+.synclog ol{list-style:none;margin:0;padding:0;max-height:15rem;overflow-y:auto;
+  overscroll-behavior:contain;scrollbar-width:thin}
+.synclog li{display:grid;grid-template-columns:6px 3.6rem 1fr;gap:.5rem;
+  align-items:baseline;padding:.22rem 0}
+.synclog li + li{border-top:1px solid color-mix(in srgb, var(--line) 55%, transparent)}
+.synclog .dayhead + li{border-top:0}   /* a rule under a day header reads as a mistake */
+.synclog .dayhead{
+  display:block;margin:.5rem 0 .15rem;padding:0;border-top:0;
+  font-weight:700;font-size:.66rem;text-transform:uppercase;letter-spacing:.06em;opacity:.55
+}
+.synclog ol > .dayhead:first-child{margin-top:0}
+.synclog .pip{width:6px;height:6px;border-radius:50%;background:var(--muted);
+  opacity:.5;align-self:center}
+.synclog li[data-status="ok"]      .pip{background:var(--ok);opacity:.9}
+.synclog li[data-status="error"]   .pip{background:var(--bad);opacity:.9}
+.synclog li[data-status="missed"]  .pip{background:var(--warn);opacity:.8}
+.synclog li[data-status="running"] .pip{background:var(--accent);animation:pulse 1.2s ease-in-out infinite}
+.synclog li[data-status="scheduled"] .pip{background:transparent;box-shadow:inset 0 0 0 1px var(--muted);opacity:.6}
+.synclog .t{font-variant-numeric:tabular-nums;opacity:.75}
+.synclog .s{color:var(--ink);opacity:.85}
+.synclog li[data-status="scheduled"] .s,
+.synclog li[data-status="due"] .s{color:var(--muted);opacity:1}
+.synclog li[data-status="error"] .s{color:var(--bad)}
+.synclog .s em{font-style:normal;opacity:.55;margin-left:.35rem;color:var(--muted)}
+.synclog .logerr{
+  display:block;grid-template-columns:none;border-top:0;padding:0 0 .3rem 4.98rem;
+  font-size:.68rem;line-height:1.35;color:var(--bad);opacity:.8
+}
+.synclog .logfoot{margin:.55rem 0 0;font-size:.66rem;opacity:.55}
+.synclog .logempty{margin:0;opacity:.7}
 .skeleton{height:74px;border-radius:var(--radius);background:var(--card);
   border:1px solid var(--line);margin-bottom:.6rem;opacity:.6;
   animation:pulse 1.4s ease-in-out infinite}
