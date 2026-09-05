@@ -62,12 +62,13 @@ header{padding:.5rem 0 .75rem}
    unlocked it. The [hidden] rule must be explicit: a bare .asklink{display:...}
    outranks the UA sheet's [hidden]{display:none} and the link would always show. */
 .asklink{
-  display:inline-flex;align-items:center;margin-left:auto;
+  display:inline-flex;align-items:center;gap:.4rem;margin-left:auto;
   background:var(--card);border:1px solid var(--line);border-radius:999px;
   padding:.45rem .9rem;font-size:.85rem;font-weight:700;color:var(--muted);
   text-decoration:none;box-shadow:var(--shadow);
   transition:color .15s ease,border-color .15s ease
 }
+.asklink .ico{width:15px;height:15px;flex:none}
 .asklink:hover{color:var(--accent);border-color:var(--accent)}
 .asklink[hidden]{display:none}
 
