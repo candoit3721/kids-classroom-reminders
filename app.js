@@ -354,6 +354,11 @@ $("#fresh").onclick = () => {
   el.setAttribute("aria-expanded", String(!open));
   const log = $("#synclog"); if (log) log.hidden = open;
 };
+/* Ask is parent-only. Reveal the way in only where its key already lives, so
+   the kids' pages stay clean; the key itself is still what guards the page. */
+try {
+  if (localStorage.getItem("askToken")) $("#asklink").hidden = false;
+} catch {}
 try {
   if (localStorage.getItem("school") === "0"){
     state.school = false; $("#showSchool").checked = false; $("#schoolToggle").dataset.on = "0";
