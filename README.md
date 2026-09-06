@@ -60,9 +60,9 @@ skips hooks skips this too, so the string would then need bumping by hand.
 
 | URL | Shows |
 |---|---|
-| `calendar.studyflix.vip/` | both kids, with an All / Sophia / Olivia filter |
-| `calendar.studyflix.vip/sophia` | Sophia only |
-| `calendar.studyflix.vip/olivia` | Olivia only |
+| `cal.studyflix.vip/` | both kids, with a toggle per kid, and the Ask link |
+| `cal.studyflix.vip/sophia` | Sophia only |
+| `cal.studyflix.vip/olivia` | Olivia only |
 
 Which kid is shown comes from the last path segment; anything unrecognised
 falls back to the default view. On `/` a filter lets you narrow to one kid and
