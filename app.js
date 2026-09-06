@@ -1,7 +1,7 @@
 /* ============================================================
    School Day - reads Supabase public views. No build step.
    Which kid is shown comes from the URL path:
-     /            → both
+     /            → both, with a toggle per kid (at least one stays on)
      /sophia/     → Sophia
      /olivia/     → Olivia
    ============================================================ */
@@ -71,7 +71,10 @@ function kidFromPath(){
   return (seg || "").toLowerCase();
 }
 
-const state = { kid:"both", locked:false, school:true, kids:[], events:[], school_events:[], days:{}, status:null, runs:[], open:new Set() };
+/* sel: the kids currently shown. kid is derived from it - "both" when more
+   than one is on, otherwise that kid's slug - and drives the accent colour. */
+const state = { sel:new Set(), kid:"both", locked:false, school:true, kids:[], events:[], school_events:[], days:{}, status:null, runs:[], open:new Set() };
+const syncKid = () => { state.kid = state.sel.size === 1 ? [...state.sel][0] : "both"; };
 const key = e => `done:${e.kid_slug||"school"}:${e.event_date}:${e.kid_title}`;
 const isDone  = e => { try { return localStorage.getItem(key(e)) === "1"; } catch { return false; } };
 const setDone = (e,v) => { try { v ? localStorage.setItem(key(e),"1") : localStorage.removeItem(key(e)); } catch {} };
@@ -95,19 +98,24 @@ async function load(){
   state.runs = runs;
 
   const want = kidFromPath();
-  if (state.kids.some(k => k.slug === want)){
-    state.kid = want; state.locked = true;          // /sophia or /olivia - fixed
+  const all = state.kids.map(k => k.slug);
+  if (all.includes(want)){
+    state.sel = new Set([want]); state.locked = true;   // /sophia or /olivia - fixed
   } else {
     state.locked = false;
     let saved = null;
     try { saved = localStorage.getItem("filter"); } catch {}
-    state.kid = state.kids.some(k => k.slug === saved) ? saved : "both";
+    // saved is a comma list of slugs ("both", from before the toggles, means all)
+    const picked = (saved || "").split(",").filter(x => all.includes(x));
+    state.sel = new Set(picked.length ? picked : all);
   }
+  syncKid();
 
   renderFilter(); render(); renderFresh(); renderLog();
 }
 
-/* Kid filter: shown only on "/" - the per-kid URLs are already decided. */
+/* Kid filter: one toggle per kid, shown only on "/" - the per-kid URLs are
+   already decided. Both start on; the last one on cannot be turned off. */
 function renderFilter(){
   const host = document.querySelector("#kidfilter");
   if (!host) return;
@@ -116,23 +124,29 @@ function renderFilter(){
   if (state.locked){ host.hidden = true; return; }
   host.hidden = false;
 
-  const seg = document.createElement("div");
-  seg.className = "seg";
-  seg.setAttribute("role", "group");
-  seg.setAttribute("aria-label", "Whose day to show");
-  for (const o of [{v:"both", l:"All"}, ...state.kids.map(k => ({v:k.slug, l:k.display_name}))]){
-    const b = document.createElement("button");
-    b.type = "button";
-    b.textContent = o.l;
-    b.setAttribute("aria-pressed", String(state.kid === o.v));
-    b.onclick = () => {
-      state.kid = o.v;
-      try { localStorage.setItem("filter", o.v); } catch {}
+  for (const k of state.kids){
+    const on = state.sel.has(k.slug);
+    const lab = document.createElement("label");
+    lab.className = "toggle kid";
+    lab.dataset.on = on ? "1" : "0";
+    lab.dataset.theme = k.theme || "";
+    lab.innerHTML = `<input type="checkbox"> ${esc(k.display_name)}`;
+    const box = lab.querySelector("input");
+    box.checked = on;
+    box.onchange = () => {
+      if (!box.checked && state.sel.size === 1){
+        // keep at least one kid on: put it back and nudge
+        box.checked = true;
+        lab.classList.remove("nope"); void lab.offsetWidth; lab.classList.add("nope");
+        return;
+      }
+      box.checked ? state.sel.add(k.slug) : state.sel.delete(k.slug);
+      syncKid();
+      try { localStorage.setItem("filter", [...state.sel].join(",")); } catch {}
       renderFilter(); render();
     };
-    seg.appendChild(b);
+    host.appendChild(lab);
   }
-  host.appendChild(seg);
 }
 
 function schoolCards(from, to){
@@ -152,7 +166,7 @@ function schoolCards(from, to){
 
 function visible(from, to){
   let ev = state.events.filter(e => e.event_date >= from && e.event_date <= to);
-  if (state.kid !== "both") ev = ev.filter(e => e.kid_slug === state.kid);
+  ev = ev.filter(e => state.sel.has(e.kid_slug));
   if (state.school) ev = ev.concat(schoolCards(from, to));
   const rank = { closure:0, break:0, pa_day:0 };
   return ev.sort((a,b) =>
@@ -169,7 +183,7 @@ function card(e){
   const kid = state.kids.find(k => k.slug === e.kid_slug);
   const bits = [];
   if (e.start_time) bits.push(time12(e.start_time) + (e.end_time ? `–${time12(e.end_time)}` : ""));
-  if (state.kid === "both" && kid)
+  if (state.sel.size > 1 && kid)
     bits.push(`<span class="who" data-theme="${esc(kid.theme || "")}">${esc(kid.display_name)}</span>`);
   if (e._school) bits.push("School");
   el.innerHTML = `

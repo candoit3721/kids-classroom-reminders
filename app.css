@@ -33,43 +33,58 @@ body{
 }
 .wrap{max-width:640px;margin:0 auto;padding:1rem 1rem 0}
 
-header{padding:.5rem 0 .75rem}
+/* Greeting on the left, Ask (parents only, see below) in the top-right corner */
+header{display:flex;align-items:flex-start;justify-content:space-between;gap:1rem;padding:.5rem 0 .75rem}
+.headtext{min-width:0}
 .hello{font-size:1.75rem;font-weight:800;letter-spacing:-.02em;margin:0}
 .today{color:var(--muted);font-size:.95rem;margin:.2rem 0 0}
 .daypill{display:inline-block;margin-left:.5rem;padding:.1rem .55rem;border-radius:999px;
   background:var(--accent-soft);color:var(--accent);font-weight:700;font-size:.8rem;vertical-align:1px}
 
-.controls{display:flex;gap:.5rem;flex-wrap:wrap;align-items:center;margin:.5rem 0 1.25rem}
-.seg{display:flex;background:var(--card);border:1px solid var(--line);
-  border-radius:999px;padding:3px;box-shadow:var(--shadow)}
-.seg button{
-  appearance:none;border:0;background:transparent;color:var(--muted);
-  font:inherit;font-weight:700;font-size:.9rem;padding:.4rem .9rem;border-radius:999px;
-  cursor:pointer;transition:background .15s ease,color .15s ease
-}
-.seg button[aria-pressed="true"]{background:var(--accent);color:#fff}
-@media (prefers-color-scheme:dark){ .seg button[aria-pressed="true"]{color:#141312} }
+/* One row of pills: a toggle per kid (app.js fills #kidfilter), then School events */
+.controls{display:flex;gap:.4rem;flex-wrap:wrap;align-items:center;margin:.35rem 0 1.25rem}
+#kidfilter{display:contents}
+#kidfilter[hidden]{display:none}
 
 .toggle{
-  display:inline-flex;align-items:center;gap:.45rem;background:var(--card);border:1px solid var(--line);
-  border-radius:999px;padding:.45rem .8rem;font-size:.85rem;font-weight:600;color:var(--muted);
-  cursor:pointer;box-shadow:var(--shadow);user-select:none
+  display:inline-flex;align-items:center;gap:.4rem;background:var(--card);border:1px solid var(--line);
+  border-radius:999px;padding:.45rem .7rem;font-size:.85rem;font-weight:600;color:var(--muted);
+  cursor:pointer;box-shadow:var(--shadow);user-select:none;white-space:nowrap;
+  transition:color .15s ease,border-color .15s ease
 }
 .toggle input{accent-color:var(--accent);margin:0}
 .toggle[data-on="1"]{color:var(--accent)}
+/* kid toggles wear their own colour when on, so both can be on at once */
+.toggle.kid[data-theme="violet"] input{accent-color:var(--k-violet)}
+.toggle.kid[data-theme="teal"]   input{accent-color:var(--k-teal)}
+.toggle.kid[data-theme="amber"]  input{accent-color:var(--k-amber)}
+.toggle.kid[data-theme="rose"]   input{accent-color:var(--k-rose)}
+.toggle.kid[data-on="1"][data-theme="violet"]{color:var(--k-violet);border-color:var(--k-violet)}
+.toggle.kid[data-on="1"][data-theme="teal"]  {color:var(--k-teal);  border-color:var(--k-teal)}
+.toggle.kid[data-on="1"][data-theme="amber"] {color:var(--k-amber); border-color:var(--k-amber)}
+.toggle.kid[data-on="1"][data-theme="rose"]  {color:var(--k-rose);  border-color:var(--k-rose)}
+/* narrow phones: tighter pills so all three still share one row */
+@media (max-width:400px){
+  .controls{gap:.35rem}
+  .toggle{padding:.42rem .6rem;font-size:.8rem;gap:.35rem}
+}
+/* the last kid on cannot be turned off: a small shake says so */
+.toggle.nope{animation:nope .3s ease}
+@keyframes nope{25%{transform:translateX(-3px)}75%{transform:translateX(3px)}}
+@media (prefers-reduced-motion:reduce){ .toggle.nope{animation:none} }
 
 /* Ask is parent-only, so app.js reveals this only on a device that has already
    unlocked it. The [hidden] rule must be explicit: a bare .asklink{display:...}
    outranks the UA sheet's [hidden]{display:none} and the link would always show. */
 .asklink{
-  display:inline-flex;align-items:center;gap:.4rem;margin-left:auto;
+  display:inline-flex;align-items:center;gap:.35rem;flex:none;margin-top:.3rem;
   background:var(--card);border:1px solid var(--line);border-radius:999px;
-  padding:.45rem .9rem;font-size:.85rem;font-weight:700;color:var(--muted);
+  padding:.45rem .85rem .45rem .7rem;font-size:.85rem;font-weight:700;color:var(--accent);
   text-decoration:none;box-shadow:var(--shadow);
-  transition:color .15s ease,border-color .15s ease
+  transition:color .15s ease,border-color .15s ease,background .15s ease
 }
-.asklink .ico{width:15px;height:15px;flex:none}
-.asklink:hover{color:var(--accent);border-color:var(--accent)}
+.asklink .ico{width:18px;height:18px;flex:none}
+.asklink:hover{border-color:var(--accent);background:var(--accent-soft)}
 .asklink[hidden]{display:none}
 
 section{margin:0 0 1.6rem}
@@ -231,12 +246,16 @@ footer{padding:.5rem 0 2rem;text-align:center}
      the composer shrank into the bottom-right corner. */
   .wrap.page-day{
     display:grid; grid-template-columns:1fr auto;
-    align-items:end; column-gap:1.5rem;
+    align-items:end; column-gap:1.5rem; row-gap:.5rem;
   }
-  .wrap.page-day > header{ grid-column:1; padding-bottom:0 }
-  .wrap.page-day > .controls{ grid-column:2; justify-self:end; margin:0 }
+  /* The header dissolves into the grid: greeting down the left, Ask in the
+     top-right corner, the toggles under it flush with the greeting's baseline. */
+  .wrap.page-day > header{ display:contents }
+  .wrap.page-day > header > .headtext{ grid-column:1; grid-row:1/3; padding:.5rem 0 0 }
+  .wrap.page-day > header > .asklink{ grid-column:2; grid-row:1; justify-self:end; align-self:start; margin-top:.5rem }
+  .wrap.page-day > .controls{ grid-column:2; grid-row:2; justify-self:end; align-self:end; margin:0 }
   .wrap.page-day > #content, .wrap.page-day > footer{ grid-column:1/-1 }
-  .wrap.page-day > #content{ margin-top:1.5rem }
+  .wrap.page-day > #content{ margin-top:1rem }
 
   .hello{ font-size:2.25rem }
 
