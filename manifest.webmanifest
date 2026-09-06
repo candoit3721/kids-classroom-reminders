@@ -11,17 +11,17 @@
   "description": "Today, tomorrow and the week ahead at school.",
   "icons": [
     {
-      "src": "icons/both-192.png",
+      "src": "icons/both-192.png?i=2",
       "sizes": "192x192",
       "type": "image/png"
     },
     {
-      "src": "icons/both-512.png",
+      "src": "icons/both-512.png?i=2",
       "sizes": "512x512",
       "type": "image/png"
     },
     {
-      "src": "icons/both-maskable-512.png",
+      "src": "icons/both-maskable-512.png?i=2",
       "sizes": "512x512",
       "type": "image/png",
       "purpose": "maskable"
