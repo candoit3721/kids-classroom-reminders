@@ -1,16 +1,20 @@
 /* ============================================================
-   Add to home screen — self-managing.
+   Install banner — self-managing.
 
-   Shows a small card offering a home-screen shortcut, but ONLY when:
-     - the page is not already running from a shortcut
+   A slim banner across the top of the page offers the site as an app
+   (a home-screen icon on phones, a Dock / taskbar icon on desktops),
+   but ONLY when:
+     - the page is not already running from the shortcut
        (display-mode: standalone, iOS navigator.standalone, or ?src=a2hs)
      - it has not been installed before on this browser
-     - the offer has not been dismissed in the last 60 days
+     - the banner has not been closed in the last 60 days
      - the browser can actually install it
    Chrome and Edge (desktop and Android) expose beforeinstallprompt, which
-   does not fire at all once the app is installed — so it is naturally quiet.
-   iOS Safari and macOS Safari have no install API; they get the Share →
-   Add to Home Screen / File → Add to Dock steps instead. Firefox: nothing.
+   never fires once the app is installed — so they go quiet on their own.
+   iOS Safari and macOS Safari have no install API, and once added they run
+   the app with storage of its own that this page cannot see; there the
+   banner shows the Share → Add to Home Screen / File → Add to Dock steps
+   plus an "I've added it" button that retires it for good. Firefox: nothing.
    ============================================================ */
 (() => {
   const KEY_DISMISSED = "a2hs.dismissedAt";
@@ -61,39 +65,52 @@
   const seg = (location.pathname.replace(/index\.html$/, "").split("/").filter(Boolean).pop() || "").toLowerCase();
   const kid = seg === "sophia" || seg === "olivia" ? seg : "both";
   const appName = kid === "sophia" ? "Sophia's School Day" : kid === "olivia" ? "Olivia's School Day" : "School Day";
-  const iconSlug = kid === "sophia" || kid === "olivia" ? kid : "both";
-  const iconSrc = (location.pathname.split("/").filter(Boolean).length ? "../" : "") + `icons/${iconSlug}-192.png`;
+  const iconSrc = (location.pathname.split("/").filter(Boolean).length ? "../" : "") + `icons/${kid}-192.png`;
+  // colour the banner for this kid straight away (app.js sets the same value later)
+  if (!document.documentElement.dataset.kid) document.documentElement.dataset.kid = kid;
 
-  function card(body, primary, secondary){
+  let banner = null;
+  const close = () => { if (banner){ banner.remove(); banner = null; } };
+  const later = () => { store.set(KEY_DISMISSED, String(Date.now())); close(); };
+  const installed = () => { store.set(KEY_INSTALLED, "1"); close(); };
+
+  // One banner at a time, pinned as the first thing on the page.
+  //   go   - the accent button (Install / Add) — only where a browser API exists
+  //   done - the quiet "I've added it" button for the manual routes
+  function show({ title, text, go, done, onGo }){
+    close();
     const el = document.createElement("aside");
     el.className = "a2hs";
-    el.setAttribute("role", "note");
+    el.setAttribute("aria-label", `Install ${appName}`);
     el.innerHTML = `
-      <img class="a2hs-icon" src="${iconSrc}" alt="" width="44" height="44">
-      <div class="a2hs-body">
-        <p class="a2hs-title">${isMobile ? `Add ${appName} to your home screen` : `Install ${appName} as an app`}</p>
-        <p class="a2hs-text">${body}</p>
-        <div class="a2hs-actions">
-          ${primary ? `<button type="button" class="a2hs-go">${primary}</button>` : ""}
-          <button type="button" class="a2hs-later">${secondary}</button>
+      <div class="a2hs-in">
+        <img class="a2hs-icon" src="${iconSrc}" alt="" width="38" height="38">
+        <div class="a2hs-body">
+          <p class="a2hs-title">${title}</p>
+          <p class="a2hs-text">${text}</p>
         </div>
+        <div class="a2hs-actions">
+          ${go ? `<button type="button" class="a2hs-go">${go}</button>` : ""}
+          ${done ? `<button type="button" class="a2hs-done">${done}</button>` : ""}
+        </div>
+        <button type="button" class="a2hs-close" aria-label="Not now" title="Not now">&times;</button>
       </div>`;
-    el.querySelector(".a2hs-later").addEventListener("click", () => {
-      store.set(KEY_DISMISSED, String(Date.now())); el.remove();
-    });
-    return el;
+    el.querySelector(".a2hs-go")?.addEventListener("click", onGo);
+    el.querySelector(".a2hs-done")?.addEventListener("click", installed);
+    el.querySelector(".a2hs-close").addEventListener("click", later);
+    document.body.insertBefore(el, document.body.firstChild);
+    banner = el;
   }
-
-  const mount = el => {
-    const host = document.querySelector("footer") || document.body;
-    host.parentNode.insertBefore(el, host);
-  };
 
   const share = `<svg class="a2hs-share" viewBox="0 0 24 24" width="16" height="16" aria-hidden="true"><path fill="currentColor" d="M12 2 8 6h3v9h2V6h3l-4-4zM5 10v10h14V10h-2v8H7v-8H5z"/></svg>`;
 
   // iOS first: no browser there has an install API, whatever the UA claims
   if (isIOS){
-    if (isSafariIOS) mount(card(`Tap ${share} <b>Share</b>, then <b>Add to Home Screen</b>.`, null, "Got it"));
+    if (isSafariIOS) show({
+      title: "Add to your home screen",
+      text: `Tap ${share} <b>Share</b>, then <b>Add to Home Screen</b>.`,
+      done: "I've added it"
+    });
     return;
   }
 
@@ -102,24 +119,32 @@
     // on a phone or a desktop. Silence here means it is already installed.
     window.addEventListener("beforeinstallprompt", e => {
       e.preventDefault();
-      const el = card(isMobile
-        ? "One tap opens it like an app, with its own icon."
-        : "Opens in its own window, with an icon in your Dock or taskbar.", isMobile ? "Add" : "Install", "Not now");
-      el.querySelector(".a2hs-go").addEventListener("click", async () => {
+      const onGo = async () => {
         e.prompt();
         const { outcome } = await e.userChoice;
-        if (outcome === "accepted") store.set(KEY_INSTALLED, "1");
-        else store.set(KEY_DISMISSED, String(Date.now()));
-        el.remove();
+        outcome === "accepted" ? installed() : later();
+      };
+      show(isMobile ? {
+        title: "Add to your home screen",
+        text: "Opens like an app, with its own icon.",
+        go: "Add", onGo
+      } : {
+        title: `Install ${appName}`,
+        text: "Opens in its own window, with an icon in your Dock or taskbar.",
+        go: "Install", onGo
       });
-      mount(el);
     });
-    window.addEventListener("appinstalled", () => store.set(KEY_INSTALLED, "1"));
+    // installed from our button or from the address-bar icon alike
+    window.addEventListener("appinstalled", installed);
     return;
   }
 
   if (isSafariMac){
     // Safari 17+ on macOS installs web apps from the File menu; no API for it
-    mount(card(`In Safari's menu bar choose <b>File</b> → <b>Add to Dock…</b>.`, null, "Got it"));
+    show({
+      title: `Add ${appName} to your Dock`,
+      text: `In Safari's menu bar choose <b>File</b> → <b>Add to Dock…</b>.`,
+      done: "I've added it"
+    });
   }
 })();
