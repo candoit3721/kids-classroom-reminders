@@ -6,22 +6,24 @@
 <title>Ask · School Day</title>
 <meta name="robots" content="noindex, nofollow">
 <meta name="theme-color" content="#f7f5f2">
-<link rel="stylesheet" href="../app.css?v=f1352300">
-<link rel="stylesheet" href="ask.css?v=f1352300">
+<link rel="stylesheet" href="../app.css?v=d1d74568">
+<link rel="stylesheet" href="ask.css?v=d1d74568">
 </head>
 <body>
 <div class="wrap">
   <header class="ask-head">
-    <a class="back" href="../">&larr; School Day</a>
-    <div class="titlerow">
-      <h1 class="hello">Ask</h1>
-      <p class="today">Anything about the girls' school life - what's coming up, what to bring, who's who.</p>
-      <span class="head-actions">
-        <a class="linkish" href="../documents/">Documents</a>
-        <button class="newthread" id="newthread" hidden>New conversation</button>
-        <button class="linkish" id="forget" hidden>Forget key</button>
-      </span>
-    </div>
+    <a class="back" href="../" aria-label="Back to School Day">
+      <svg class="ico" viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+        <path d="M14.5 5.5 8 12l6.5 6.5" fill="none" stroke="currentColor" stroke-width="2.2"
+              stroke-linecap="round" stroke-linejoin="round"/>
+      </svg><span class="back-label">School Day</span>
+    </a>
+    <h1 class="hello">Ask</h1>
+    <span class="head-actions">
+      <button class="newthread" id="newthread" hidden>New conversation</button>
+      <a class="linkish docs" href="../documents/">Documents</a>
+      <button class="linkish" id="forget" hidden>Forget key</button>
+    </span>
   </header>
 
   <!-- gate: the key never ships in the page, it is typed once and kept locally -->
@@ -44,6 +46,7 @@
 
     <div class="composer">
       <p class="lead-in">What would you like to know?</p>
+      <p class="lead-hint">Anything about the girls' school life - what's coming up, what to bring, who's who.</p>
 
       <form id="askform" class="askform">
         <textarea id="q" rows="1" placeholder="What do the girls need for next week?"
@@ -70,6 +73,6 @@
     </div>
   </main>
 </div>
-<script src="ask.js?v=f1352300"></script>
+<script src="ask.js?v=d1d74568"></script>
 </body>
 </html>

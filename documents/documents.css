@@ -2,11 +2,10 @@
 :root{ --accent:#b45309; --accent-soft:#fef3c7 }
 @media (prefers-color-scheme:dark){ :root{ --accent:#fcd34d; --accent-soft:#43300b } }
 
-.doc-head{ padding:.25rem 0 .5rem }
-.doc-head .back{ display:inline-block; font-size:.75rem; margin-bottom:.15rem; color:var(--muted); text-decoration:none }
-.titlerow{ display:flex; align-items:baseline; gap:.7rem; flex-wrap:wrap }
-.titlerow .hello{ margin:0 }
-.titlerow .today{ margin:0; flex:1 1 16rem }
+.doc-head{ padding:.35rem 0 .5rem }
+.doc-head .bar{ display:flex; align-items:center; gap:.65rem }
+.doc-head .hello{ margin:0; font-size:1.6rem }
+.doc-head .today{ margin:.5rem 0 0; font-size:.9rem }
 .summary{ margin:.6rem 0 0; font-size:.82rem; color:var(--muted) }
 .summary strong{ color:var(--ink); font-weight:700 }
 

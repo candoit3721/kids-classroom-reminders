@@ -6,17 +6,22 @@
 <title>Documents · School Day</title>
 <meta name="robots" content="noindex, nofollow">
 <meta name="theme-color" content="#f7f5f2">
-<link rel="stylesheet" href="../app.css?v=f1352300">
-<link rel="stylesheet" href="documents.css?v=f1352300">
+<link rel="stylesheet" href="../app.css?v=d1d74568">
+<link rel="stylesheet" href="documents.css?v=d1d74568">
 </head>
 <body>
 <div class="wrap">
   <header class="doc-head">
-    <a class="back" href="../">&larr; School Day</a>
-    <div class="titlerow">
+    <div class="bar">
+      <a class="back" href="../" aria-label="Back to School Day">
+        <svg class="ico" viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+        <path d="M14.5 5.5 8 12l6.5 6.5" fill="none" stroke="currentColor" stroke-width="2.2"
+              stroke-linecap="round" stroke-linejoin="round"/>
+      </svg><span class="back-label">School Day</span>
+      </a>
       <h1 class="hello">Documents</h1>
-      <p class="today">Everything from the school portal that Ask can draw on — what it is, who it applies to, and when it was last checked.</p>
     </div>
+    <p class="today">Everything from the school portal that Ask can draw on — what it is, who it applies to, and when it was last checked.</p>
     <p class="summary" id="summary">Loading…</p>
   </header>
 
@@ -37,6 +42,6 @@
     <p>Text is extracted server-side from the portal's files, kept in the database, and embedded for semantic search. Restricted Google Docs are fetched through a signed-in browser during a sweep. Out-of-scope items (Upper School, Children's House, Grade 7+) are registered but never retrieved.</p>
   </footer>
 </div>
-<script src="documents.js?v=f1352300"></script>
+<script src="documents.js?v=d1d74568"></script>
 </body>
 </html>

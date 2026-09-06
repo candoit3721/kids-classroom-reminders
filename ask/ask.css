@@ -45,10 +45,14 @@ body{ padding-bottom:0 }
 .askui.is-empty .composer::before{ display:none }
 
 .lead-in{
-  display:none; margin:0 0 .75rem; text-align:center;
+  display:none; margin:0 0 .3rem; text-align:center;
   font-size:1.15rem; font-weight:700; letter-spacing:-.01em; color:var(--ink)
 }
-.askui.is-empty .lead-in{ display:block }
+.lead-hint{
+  display:none; margin:0 auto 1rem; max-width:34ch; text-align:center;
+  font-size:.86rem; line-height:1.45; color:var(--muted)
+}
+.askui.is-empty .lead-in, .askui.is-empty .lead-hint{ display:block }
 
 /* Slash-command feedback. No display property on purpose: the hidden
    attribute only works while nothing outranks the UA rule for it. */
@@ -75,6 +79,8 @@ body{ padding-bottom:0 }
   transition:color .15s ease, border-color .15s ease;
 }
 .examples li:hover{ color:var(--accent); border-color:var(--accent) }
+/* a phone gets three starters; the rest come back with the room for them */
+@media (max-width:599px){ .examples li:nth-child(n+4){ display:none } }
 
 /* --- composer ------------------------------------------------- */
 .askform{
@@ -105,24 +111,24 @@ body{ padding-bottom:0 }
 .askform button[type=submit]:disabled{ opacity:.5; cursor:default }
 
 /* --- header ---------------------------------------------------
-   Back-link above, wordmark with the strapline inline beside it,
-   actions pushed right. Collapses once a conversation is running so
-   the thread gets the vertical space. */
-.ask-head{ padding:.25rem 0 1rem }
-.ask-head .back{ display:inline-block; font-size:.75rem; margin-bottom:.15rem }
-.titlerow{ display:flex; align-items:baseline; gap:.7rem; flex-wrap:wrap }
-.titlerow .hello{ margin:0; transition:font-size .18s ease }
-.titlerow .today{ margin:0; flex:1 1 14rem; min-width:0 }
-.head-actions{ display:flex; gap:.9rem; margin-left:auto; white-space:nowrap }
+   One quiet row: the round back button (app.css), the wordmark, and
+   the actions on the right. The strapline lives with the empty state
+   instead, so the bar stays small on a phone; it shrinks further once
+   a conversation is running so the thread gets the vertical space. */
+.ask-head{ display:flex; align-items:center; gap:.65rem; padding:.35rem 0 1rem }
+.ask-head .hello{ margin:0; font-size:1.6rem; transition:font-size .18s ease }
+.head-actions{ display:flex; gap:.9rem; align-items:center; margin-left:auto; white-space:nowrap }
 
 body.chatting .ask-head{
   position:sticky; top:0; z-index:6;
   background:var(--bg); padding:.5rem 0 .6rem;
   border-bottom:1px solid var(--line);
 }
-body.chatting .ask-head .back{ font-size:.72rem; margin-bottom:0 }
-body.chatting .titlerow .hello{ font-size:1.15rem }
-body.chatting .titlerow .today{ display:none }
+body.chatting .ask-head .hello{ font-size:1.25rem }
+/* mid-conversation on a phone only New conversation stays in the bar */
+@media (max-width:599px){
+  body.chatting .head-actions .docs, body.chatting .head-actions #forget{ display:none }
+}
 
 /* --- unlock gate ---------------------------------------------- */
 .unlock{
@@ -224,14 +230,13 @@ body.chatting .titlerow .today{ display:none }
 .followups button:hover{ border-color:currentColor }
 .followups button:active{ transform:scale(.97) }
 
-.back{ color:var(--muted); text-decoration:none }
-.back:hover{ color:var(--ink) }
-a.linkish{ text-decoration:underline }
+/* secondary actions: quiet text, no underline until hovered */
+a.linkish{ text-decoration:none }
 .newthread, .linkish{
-  background:none; border:0; color:var(--muted); font:inherit; font-size:.75rem;
-  cursor:pointer; text-decoration:underline; padding:0
+  background:none; border:0; color:var(--muted); font:inherit; font-size:.78rem; font-weight:600;
+  cursor:pointer; text-decoration:none; padding:0
 }
-.newthread:hover, .linkish:hover{ color:var(--ink) }
+.newthread:hover, .linkish:hover{ color:var(--accent); text-decoration:underline }
 
 @media (min-width:600px){
   .askform textarea{ font-size:1.02rem }
