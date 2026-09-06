@@ -1,0 +1,30 @@
+{
+  "name": "Olivia's School Day",
+  "short_name": "Olivia",
+  "id": "/olivia/",
+  "start_url": "/olivia/?src=a2hs",
+  "scope": "/",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#f7f5f2",
+  "theme_color": "#0f766e",
+  "description": "Today, tomorrow and the week ahead at school.",
+  "icons": [
+    {
+      "src": "../icons/olivia-192.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "../icons/olivia-512.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    },
+    {
+      "src": "../icons/olivia-maskable-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable"
+    }
+  ]
+}

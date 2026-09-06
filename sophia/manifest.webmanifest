@@ -1,0 +1,30 @@
+{
+  "name": "Sophia's School Day",
+  "short_name": "Sophia",
+  "id": "/sophia/",
+  "start_url": "/sophia/?src=a2hs",
+  "scope": "/",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#f7f5f2",
+  "theme_color": "#5b21b6",
+  "description": "Today, tomorrow and the week ahead at school.",
+  "icons": [
+    {
+      "src": "../icons/sophia-192.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "../icons/sophia-512.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    },
+    {
+      "src": "../icons/sophia-maskable-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable"
+    }
+  ]
+}
