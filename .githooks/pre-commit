@@ -41,5 +41,13 @@ for p in $PAGES; do
   fi
 done
 
-[ -n "$changed" ] && echo "pre-commit: asset version -> $new ($changed )"
+# Staging from inside a running commit is what git documents, but on a repo
+# reached through the Cowork mount the outer commit twice recorded an EMPTY
+# tree after the hook rewrote the index. So when the pages needed a bump,
+# stop here with them staged and ask for the same commit again: the second
+# run finds nothing to change and goes through untouched.
+if [ -n "$changed" ]; then
+  echo "pre-commit: asset version -> $new ($changed ) - pages restaged; run the same git commit again." >&2
+  exit 1
+fi
 exit 0
