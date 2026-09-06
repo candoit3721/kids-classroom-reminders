@@ -1,0 +1,726 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Kids Classroom Reminders · Engineering Documentation</title>
+<meta name="theme-color" content="#f7f5f2">
+<script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+<style>
+  :root {
+    --bg: #f7f5f2;
+    --sidebar-bg: #ffffff;
+    --card: #ffffff;
+    --ink: #1c1a17;
+    --muted: #6b6560;
+    --line: #e6e1da;
+    --accent: #5b21b6;
+    --accent-soft: #ede9fe;
+    --code-bg: #282c34;
+    --code-ink: #abb2bf;
+    --radius: 14px;
+    --shadow: 0 2px 10px rgba(20,14,8,.06);
+    --font: ui-rounded, "SF Pro Rounded", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+    --mono: "SF Mono", Menlo, Monaco, Consolas, monospace;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg: #141312;
+      --sidebar-bg: #1a1917;
+      --card: #1e1c1a;
+      --ink: #f2efea;
+      --muted: #a09a93;
+      --line: #2e2b28;
+      --accent: #c4b5fd;
+      --accent-soft: #2c2350;
+      --code-bg: #121110;
+      --shadow: 0 4px 16px rgba(0,0,0,.4);
+    }
+  }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; padding: 0; background: var(--bg); color: var(--ink); font-family: var(--font); -webkit-font-smoothing: antialiased; }
+  
+  .layout { display: flex; min-height: 100vh; }
+  
+  /* Sidebar */
+  aside.sidebar {
+    width: 300px;
+    flex: none;
+    background: var(--sidebar-bg);
+    border-right: 1px solid var(--line);
+    padding: 1.5rem 1.25rem;
+    position: sticky;
+    top: 0;
+    height: 100vh;
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+    gap: 1.25rem;
+  }
+  .brand { display: flex; align-items: center; gap: .75rem; text-decoration: none; color: var(--ink); }
+  .brand-badge {
+    width: 38px; height: 38px; border-radius: 10px; background: var(--accent); color: #fff;
+    display: flex; align-items: center; justify-content: center; font-size: 1.25rem; font-weight: 800;
+  }
+  .brand-title { font-size: 1.1rem; font-weight: 800; line-height: 1.2; margin: 0; }
+  .brand-sub { font-size: .75rem; color: var(--muted); margin: 0; text-transform: uppercase; letter-spacing: .05em; }
+
+  .search-box input {
+    width: 100%;
+    padding: .5rem .85rem;
+    border-radius: 8px;
+    border: 1px solid var(--line);
+    background: var(--bg);
+    color: var(--ink);
+    font-size: .85rem;
+    outline: none;
+  }
+  .search-box input:focus { border-color: var(--accent); }
+
+  nav.nav-links { display: flex; flex-direction: column; gap: .35rem; }
+  nav.nav-links button {
+    display: flex; align-items: center; gap: .6rem;
+    background: transparent; border: none; border-radius: 8px;
+    padding: .55rem .75rem; color: var(--muted); font-family: inherit; font-size: .9rem; font-weight: 600;
+    text-align: left; cursor: pointer; transition: all .15s ease;
+  }
+  nav.nav-links button:hover { background: var(--bg); color: var(--ink); }
+  nav.nav-links button.active { background: var(--accent-soft); color: var(--accent); font-weight: 700; }
+
+  /* Main Content */
+  main.content {
+    flex: 1;
+    max-width: 960px;
+    margin: 0 auto;
+    padding: 2.5rem 2rem 5rem;
+  }
+
+  .doc-section { display: none; }
+  .doc-section.active { display: block; animation: fadeIn .2s ease; }
+  @keyframes fadeIn { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: translateY(0); } }
+
+  h1 { font-size: 2.2rem; font-weight: 800; letter-spacing: -.03em; margin: 0 0 .75rem; }
+  h2 { font-size: 1.5rem; font-weight: 750; letter-spacing: -.02em; margin: 2rem 0 1rem; border-bottom: 1px solid var(--line); padding-bottom: .4rem; }
+  h3 { font-size: 1.2rem; font-weight: 700; margin: 1.5rem 0 .5rem; }
+  p, li { line-height: 1.65; color: var(--ink); font-size: 1rem; }
+  .lead { font-size: 1.15rem; color: var(--muted); margin-bottom: 1.75rem; }
+  
+  a { color: var(--accent); text-decoration: none; font-weight: 600; }
+  a:hover { text-decoration: underline; }
+
+  /* Cards & Grid */
+  .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 1.25rem; margin: 1.5rem 0; }
+  .card {
+    background: var(--card); border: 1px solid var(--line); border-radius: var(--radius);
+    padding: 1.25rem; box-shadow: var(--shadow);
+  }
+  .card h4 { margin: 0 0 .5rem; font-size: 1.1rem; }
+  .card p { margin: 0; font-size: .9rem; color: var(--muted); }
+
+  /* Tables */
+  table { width: 100%; border-collapse: collapse; margin: 1.5rem 0; background: var(--card); border-radius: 10px; overflow: hidden; border: 1px solid var(--line); }
+  th, td { padding: .75rem 1rem; text-align: left; font-size: .9rem; border-bottom: 1px solid var(--line); }
+  th { background: var(--bg); font-weight: 700; color: var(--muted); text-transform: uppercase; font-size: .75rem; letter-spacing: .05em; }
+
+  /* Code & Mermaid */
+  pre {
+    background: var(--code-bg); color: var(--code-ink); padding: 1rem 1.25rem; border-radius: 10px;
+    overflow-x: auto; font-family: var(--mono); font-size: .85rem; line-height: 1.5; margin: 1.25rem 0;
+  }
+  code { font-family: var(--mono); font-size: .88em; background: rgba(120,120,120,.15); padding: .15rem .35rem; border-radius: 4px; }
+  pre code { background: none; padding: 0; }
+
+  .diagram-container {
+    background: var(--card); border: 1px solid var(--line); border-radius: var(--radius);
+    padding: 1.5rem; margin: 1.75rem 0; box-shadow: var(--shadow); overflow-x: auto; text-align: center;
+  }
+  .diagram-container pre.mermaid {
+    background: transparent;
+    color: inherit;
+    padding: 0;
+    margin: 0;
+    border-radius: 0;
+    overflow: visible;
+  }
+  .diagram-container svg {
+    max-width: 100%;
+    height: auto;
+  }
+  .diagram-title { font-size: .85rem; font-weight: 700; color: var(--muted); text-transform: uppercase; margin-bottom: 1rem; text-align: left; }
+
+  /* Alerts */
+  .alert {
+    border-left: 4px solid var(--accent); background: var(--accent-soft); padding: 1rem 1.25rem;
+    border-radius: 0 10px 10px 0; margin: 1.5rem 0; font-size: .95rem;
+  }
+  .alert strong { color: var(--accent); }
+
+  @media (max-width: 820px) {
+    .layout { flex-direction: column; }
+    aside.sidebar { width: 100%; height: auto; position: static; border-right: none; border-bottom: 1px solid var(--line); }
+    main.content { padding: 1.5rem 1rem; }
+  }
+</style>
+</head>
+<body>
+
+<div class="layout">
+  <!-- Left Navigation Sidebar -->
+  <aside class="sidebar">
+    <a href="#overview" class="brand">
+      <div class="brand-badge">🏫</div>
+      <div>
+        <h1 class="brand-title">School Day</h1>
+        <p class="brand-sub">Technical Docs</p>
+      </div>
+    </a>
+
+    <div class="search-box">
+      <input type="text" id="docSearch" placeholder="Search documentation...">
+    </div>
+
+    <nav class="nav-links">
+      <button class="active" data-target="overview">📖 Documentation Hub</button>
+      <button data-target="architecture">🏛️ System Architecture</button>
+      <button data-target="techstack">⚡ Tech Stack & Philosophy</button>
+      <button data-target="database">🗄️ Database Schema & ERD</button>
+      <button data-target="pipeline">🔄 Data Pipeline & Collector</button>
+      <button data-target="frontend">📱 Frontend & PWA</button>
+      <button data-target="ask">🤖 AI Semantic Search (Ask)</button>
+      <button data-target="operations">🛠️ Operations Runbook</button>
+    </nav>
+  </aside>
+
+  <!-- Main Content Viewer -->
+  <main class="content">
+
+    <!-- 1. OVERVIEW -->
+    <section id="overview" class="doc-section active">
+      <h1>Documentation Hub</h1>
+      <p class="lead">Complete engineering architecture and technical guides for Kids Classroom Reminders (School Day).</p>
+
+      <div class="alert">
+        <strong>Project Overview:</strong> A zero-build, kid-friendly daily calendar and reminder web application for two Lauremont School students (Sophia and Olivia) built from Google Classroom streams, school portal handbooks, and the official school calendar.
+      </div>
+
+      <h2>System Topology Overview</h2>
+      <div class="diagram-container">
+        <div class="diagram-title">System Ingestion & Delivery Flow</div>
+        <pre class="mermaid">
+flowchart LR
+    subgraph Sources["External School Sources"]
+        GC["Google Classroom<br/>(Streams, Posts, Files)"]
+        SP["School Portal<br/>(Handbooks, PDFs, Docs)"]
+        SC["School Calendar<br/>(8-Day Cycle PDF)"]
+    end
+
+    subgraph Ingestion["Ingestion & Data Pipeline"]
+        Agent["Scheduled Agent<br/>(Claude in Chrome 3×/day)"]
+        Sweep["Portal Sweeper<br/>(Signed-in Browser)"]
+        DBFuncs["PostgreSQL Procedures<br/>(Deduplication, Rules, Chunks)"]
+    end
+
+    subgraph Storage["Storage & API Layer"]
+        Base["Base Tables (RLS Denied)<br/>raw_items, events, doc_chunks"]
+        Views["Owner Views<br/>v_public_agenda, v_public_status"]
+        Edge["Edge Function<br/>/functions/v1/ask"]
+    end
+
+    subgraph Presentation["Client Delivery (GitHub Pages)"]
+        App["Daily Agenda PWA<br/>(/, /sophia, /olivia)"]
+        Ask["Ask AI Assistant<br/>(/ask)"]
+        Docs["Document Catalog<br/>(/documents)"]
+    end
+
+    GC --> Agent
+    SP --> Sweep
+    SC --> DBFuncs
+    Agent --> DBFuncs
+    Sweep --> DBFuncs
+    DBFuncs --> Base
+    Base --> Views
+    Base --> Edge
+    Views --> App
+    Views --> Docs
+    Edge --> Ask
+        </pre>
+      </div>
+
+      <h2>Quick Access to Guides</h2>
+      <div class="grid">
+        <div class="card">
+          <h4>🏛️ System Architecture</h4>
+          <p>C4 context and container models, end-to-end data pipelines, and trust boundaries.</p>
+        </div>
+        <div class="card">
+          <h4>⚡ Tech Stack</h4>
+          <p>Zero-build architecture, Vanilla ES6+ JS, CSS variables, and PostgREST integration.</p>
+        </div>
+        <div class="card">
+          <h4>🗄️ Database Schema</h4>
+          <p>Entity-relationship diagrams, table dictionaries, stored procedures, and RLS.</p>
+        </div>
+        <div class="card">
+          <h4>🔄 Collector Pipeline</h4>
+          <p>Claude browser scraper, multimodal attachment OCR, and deletion guards.</p>
+        </div>
+        <div class="card">
+          <h4>📱 Frontend & PWA</h4>
+          <p>Dynamic routing, cross-platform A2HS install engine, and cache busting.</p>
+        </div>
+        <div class="card">
+          <h4>🤖 AI Semantic Search</h4>
+          <p>Hybrid dual-path retrieval (calendar arithmetic + vector embeddings) and prompt fencing.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- 2. SYSTEM ARCHITECTURE -->
+    <section id="architecture" class="doc-section">
+      <h1>System Architecture Design</h1>
+      <p class="lead">Container models, interaction flows, and security trust boundaries.</p>
+
+      <h2>C4 Container Architecture</h2>
+      <div class="diagram-container">
+        <div class="diagram-title">C4 Container Model</div>
+        <pre class="mermaid">
+graph TB
+    subgraph Client["Client Tier (GitHub Pages CDN)"]
+        SPA["Static PWA Shell<br/>(index.html, app.css, app.js, a2hs.js)"]
+        SophiaPage["/sophia/ Route"]
+        OliviaPage["/olivia/ Route"]
+        AskPage["/ask/ Route (ask.js)"]
+        DocsPage["/documents/ Route (documents.js)"]
+    end
+
+    subgraph Edge["Compute Tier (Supabase Edge)"]
+        AskFunc["Edge Function: /functions/v1/ask<br/>(Deno / TypeScript)"]
+        LLM["AI Model API<br/>(Claude / Gemini)"]
+    end
+
+    subgraph Data["Database Tier (Supabase PostgreSQL)"]
+        PostgREST["PostgREST REST API<br/>(anon key restricted)"]
+        Views["Public Views (Owner-owned)<br/>v_public_agenda, v_public_status, etc."]
+        RLS["Row Level Security (RLS)<br/>Deny-all on base tables"]
+        Tables["Base Tables<br/>kids, raw_items, events, recurring_rules"]
+        Procs["Stored Procedures<br/>upsert_raw_item, upsert_event, sync_chunks"]
+    end
+
+    subgraph ExternalAgent["Collector Tier (Scheduled Tasks)"]
+        CollectorCron["Cowork Scheduled Task<br/>(6am, 4pm, 8pm Toronto)"]
+        BrowserSession["Chrome Browser Profiles<br/>(u/1 for Grade 6, u/2 for Grade 3)"]
+    end
+
+    SPA --> PostgREST
+    SophiaPage --> PostgREST
+    OliviaPage --> PostgREST
+    DocsPage --> PostgREST
+    AskPage --> AskFunc
+    AskFunc --> LLM
+    AskFunc --> Procs
+
+    PostgREST --> Views
+    Views --> Tables
+    Tables -.->|guarded by| RLS
+
+    CollectorCron --> BrowserSession
+    BrowserSession --> Procs
+    Procs --> Tables
+        </pre>
+      </div>
+
+      <h2>End-to-End Data Lifecycle Sequence</h2>
+      <div class="diagram-container">
+        <div class="diagram-title">Scrape to Student Screen Sequence</div>
+        <pre class="mermaid">
+sequenceDiagram
+    autonumber
+    actor Teacher as Teacher
+    participant GC as Google Classroom
+    participant Scraper as Claude Collector (Chrome)
+    participant DB as Postgres (Supabase)
+    actor Parent as Parent (Henry)
+    participant Client as Student Device (app.js)
+
+    Teacher->>GC: Publishes post: "Math Test moved to Day 4"
+    Note over Scraper: 6am / 4pm / 8pm cron triggers
+    Scraper->>GC: Scrapes stream & opens attachments
+    GC-->>Scraper: Post HTML + visual attachments
+    Scraper->>DB: CALL upsert_raw_item(...)
+    DB-->>Scraper: Status: 'changed' (hash modified)
+
+    Note over Scraper: LLM extracts structured event JSON
+    Scraper->>DB: CALL upsert_event(...)
+    DB->>DB: Material change detected -> status='pending'
+    DB-->>Scraper: Status: 'updated', material: true
+    Scraper->>DB: CALL reconcile_deletions() & sync_chunks()
+
+    Note over Parent: Moderation Step
+    Parent->>DB: SELECT * FROM v_review_queue;
+    Parent->>DB: UPDATE events SET status='published' WHERE id = ...
+
+    Note over Client: Student opens app
+    Client->>DB: GET /rest/v1/v_public_agenda
+    DB-->>Client: Returns published events
+    Client->>Client: Merges localStorage 'done' ticks and renders
+        </pre>
+      </div>
+    </section>
+
+    <!-- 3. TECH STACK -->
+    <section id="techstack" class="doc-section">
+      <h1>Tech Stack & Design Philosophy</h1>
+      <p class="lead">Zero-build architecture, performance considerations, and dependency trade-offs.</p>
+
+      <h2>Technology Breakdown</h2>
+      <table>
+        <thead>
+          <tr><th>Layer</th><th>Technology</th><th>Purpose & Justification</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>Frontend Core</td><td>Vanilla JavaScript (ES6+)</td><td>Zero bundlers or npm dependencies. Instant loading and long-term durability.</td></tr>
+          <tr><td>Styling</td><td>Modern CSS3 Custom Properties</td><td>Native light/dark theming via <code>prefers-color-scheme</code> and per-kid accents.</td></tr>
+          <tr><td>PWA Engine</td><td>Custom <code>a2hs.js</code> + Pass-through <code>sw.js</code></td><td>Cross-platform Add-to-Home-Screen banner without stale cache bugs.</td></tr>
+          <tr><td>Database</td><td>PostgreSQL 15 (Supabase)</td><td>Relational integrity, JSONB attachments, cryptographic hashing, and RLS.</td></tr>
+          <tr><td>API Access</td><td>PostgREST</td><td>Auto-generated REST endpoints directly querying PostgreSQL views.</td></tr>
+          <tr><td>Serverless</td><td>Supabase Edge Functions</td><td>Deno/TypeScript runtime for gated AI conversational queries.</td></tr>
+          <tr><td>Deployment</td><td>GitHub Pages</td><td>Git-driven deployment serving verbatim from the <code>main</code> branch root.</td></tr>
+          <tr><td>Fingerprinting</td><td>Tracked Git Pre-Commit Hook</td><td>Auto-hashes staged CSS/JS files into <code>?v=hash</code> without build tools.</td></tr>
+        </tbody>
+      </table>
+
+      <h2>Asset Versioning Workflow</h2>
+      <div class="diagram-container">
+        <div class="diagram-title">Pre-Commit Cache Busting Engine</div>
+        <pre class="mermaid">
+flowchart TD
+    Commit["git commit"] --> Detect{"Did commit touch<br/>a versioned asset?"}
+    Detect -- No --> Allow["Proceed with commit"]
+    Detect -- Yes --> CheckStaged{"Any unstaged edits<br/>in HTML pages?"}
+    CheckStaged -- Yes --> Abort["Abort: Prevent accidental staging"]
+    CheckStaged -- No --> Hash["Calculate SHA hash of staged assets"]
+    Hash --> Rewrite["Rewrite ?v=hash in all HTML entrypoints"]
+    Rewrite --> Stage["git add modified HTML pages"]
+    Stage --> Finish["Commit completed with synchronized ?v=hash"]
+        </pre>
+      </div>
+    </section>
+
+    <!-- 4. DATABASE -->
+    <section id="database" class="doc-section">
+      <h1>Database Schema & Data Models</h1>
+      <p class="lead">PostgreSQL relational models, entity diagrams, security views, and procedures.</p>
+
+      <h2>Entity-Relationship Diagram (ERD)</h2>
+      <div class="diagram-container">
+        <div class="diagram-title">PostgreSQL ERD</div>
+        <pre class="mermaid">
+erDiagram
+    kids ||--o{ classes : "has"
+    kids ||--o{ raw_items : "collected for"
+    kids ||--o{ events : "scheduled for"
+    kids ||--o{ recurring_rules : "assigned"
+    kids ||--o{ checkoffs : "completed by"
+
+    classes ||--o{ raw_items : "categorizes"
+    classes ||--o{ events : "associates"
+
+    raw_items ||--o{ events : "extracts into"
+    events ||--o{ checkoffs : "marked done"
+    day_cycle ||--o{ recurring_rules : "resolves"
+
+    kids {
+        uuid id PK
+        text slug UK
+        text display_name
+        text grade
+        text google_email UK
+        text chrome_profile
+        text theme
+        text view_token UK
+    }
+
+    classes {
+        uuid id PK
+        uuid kid_id FK
+        text classroom_id
+        text name
+        text teacher
+        boolean active
+    }
+
+    raw_items {
+        uuid id PK
+        uuid kid_id FK
+        text kind
+        text title
+        text body
+        jsonb attachments
+        text content_hash
+        timestamptz collected_at
+    }
+
+    events {
+        uuid id PK
+        uuid kid_id FK
+        date event_date
+        time start_time
+        text type
+        text kid_title
+        text parent_detail
+        text status
+    }
+
+    day_cycle {
+        date school_date PK
+        int day_number
+        text note
+    }
+
+    recurring_rules {
+        uuid id PK
+        uuid kid_id FK
+        text type
+        int[] cycle_days
+        int[] weekdays
+        date starts_on
+        date ends_on
+    }
+
+    checkoffs {
+        uuid id PK
+        uuid kid_id FK
+        uuid event_id FK
+        date for_date
+        timestamptz done_at
+    }
+        </pre>
+      </div>
+    </section>
+
+    <!-- 5. PIPELINE -->
+    <section id="pipeline" class="doc-section">
+      <h1>Data Ingestion & Extraction Pipeline</h1>
+      <p class="lead">Automated Chrome collection, multimodal OCR, and deduplication logic.</p>
+
+      <h2>Collector Execution Flowchart</h2>
+      <div class="diagram-container">
+        <div class="diagram-title">Browser Ingestion Lifecycle</div>
+        <pre class="mermaid">
+flowchart TD
+    Start(["Cowork Cron Slot"]) --> RunInit["INSERT INTO collection_runs"]
+    RunInit --> ScanStream["Navigate to Classroom Stream (Page 1)"]
+    
+    ScanStream --> ExtractPost["Extract Post Permalink & Metadata"]
+    ExtractPost --> CheckAttach{"Attachment present?"}
+    
+    CheckAttach -- Yes --> ProcessAttach["Process Attachment:<br/>- Docs/Slides: read as text<br/>- Images/Scans: visual OCR in Drive"]
+    CheckAttach -- No --> UpsertRaw
+    ProcessAttach --> UpsertRaw
+    
+    UpsertRaw["CALL upsert_raw_item(...)"]
+    UpsertRaw --> Status{"Raw Item Status?"}
+    
+    Status -- unchanged --> NextPost["Next Post"]
+    Status -- created / changed --> LLM["Invoke Extraction LLM"]
+    
+    LLM --> UpsertEvent["CALL upsert_event(...)"]
+    UpsertEvent --> Supersede["CALL supersede_missing_events(...)"]
+    Supersede --> NextPost
+    
+    NextPost --> EndCheck{"More posts or courses?"}
+    EndCheck -- Yes --> ScanStream
+    EndCheck -- No --> Maintenance["End-of-Run Jobs:<br/>1. expand_recurring_rules()<br/>2. reconcile_deletions()<br/>3. sync_chunks()"]
+    
+    Maintenance --> FinishRun["Update collection_runs: status='ok'"]
+    FinishRun --> End(["Run Complete"])
+        </pre>
+      </div>
+    </section>
+
+    <!-- 6. FRONTEND -->
+    <section id="frontend" class="doc-section">
+      <h1>Frontend & PWA Architecture</h1>
+      <p class="lead">Add-to-Home-Screen engine, local state preservation, and accessibility.</p>
+
+      <h2>Cross-Platform Installation Flow (`a2hs.js`)</h2>
+      <div class="diagram-container">
+        <div class="diagram-title">PWA Banner Lifecycle</div>
+        <pre class="mermaid">
+flowchart TD
+    Init(["Page Load: a2hs.js"]) --> CheckRunning{"Running Standalone?<br/>(display-mode, ?src=a2hs)"}
+    
+    CheckRunning -- Yes --> MarkInstalled["Set a2hs.installed = 1"]
+    MarkInstalled --> Suppress(["Suppress Banner"])
+    
+    CheckRunning -- No --> CheckSaved{"Already installed or<br/>snoozed (< 60 days)?"}
+    CheckSaved -- Yes --> Suppress
+    CheckSaved -- No --> Platform{"Detect Platform & API"}
+    
+    Platform -- "Chrome / Edge" --> ListenPrompt["Listen for beforeinstallprompt"]
+    ListenPrompt --> ShowGo["Render Banner with native 'Add' button"]
+    ShowGo --> UserGo{"User Action?"}
+    UserGo -- Tap Add --> TriggerPrompt["Call prompt() & await choice"]
+    TriggerPrompt --> MarkInstalled
+    UserGo -- Tap (×) --> Snooze["Save a2hs.dismissedAt (60d)"]
+    
+    Platform -- "iOS Safari" --> ShowIOSGuide["Render Banner: 'Tap Share -> Add to Home Screen'"]
+    Platform -- "iOS Chrome" --> ShowIOSChrome["Render Banner: 'Tap Share beside address bar'"]
+    Platform -- "macOS Safari 17+" --> ShowMacDock["Render Banner: 'File -> Add to Dock...'"]
+    Platform -- Other --> Suppress
+        </pre>
+      </div>
+    </section>
+
+    <!-- 7. ASK -->
+    <section id="ask" class="doc-section">
+      <h1>AI Semantic Search & "Ask" Engine</h1>
+      <p class="lead">Hybrid retrieval combining calendar arithmetic with vector semantic search.</p>
+
+      <h2>Hybrid Retrieval Architecture</h2>
+      <div class="diagram-container">
+        <div class="diagram-title">Dual-Path Retrieval Pipeline</div>
+        <pre class="mermaid">
+flowchart TD
+    UserQ["User Prompt:<br/>'What should Sophia bring next week?'"] --> Client["ask.js: Token & History Check"]
+    Client --> Edge["Supabase Edge Function: /functions/v1/ask"]
+    
+    Edge --> Parse["Deterministic Date Window Parser<br/>(resolves 'next week' -> 2026-09-14 to 2026-09-18)"]
+    
+    subgraph DualRetrieval["Dual Retrieval Pipeline"]
+        direction TB
+        
+        subgraph Path1["Path 1: Calendar Arithmetic"]
+            Parse -->|Date range: from..to| DBWindow["CALL agenda_window(from, to, 'sophia')"]
+            DBWindow --> EventsData["Authoritative Calendar Events<br/>(Tests, Due Dates, Gear)"]
+        end
+        
+        subgraph Path2["Path 2: Vector Search"]
+            Edge --> Embed["Generate Query Vector Embedding"]
+            Embed --> DBSearch["CALL search_chunks(embedding, from, to, 'sophia')"]
+            DBSearch --> ChunksData["Contextual Handbook & Post Chunks<br/>(Dress code, supply lists, notes)"]
+        end
+    end
+    
+    EventsData --> ContextMerge["Merge Context & Wrap in XML Fencing"]
+    ChunksData --> ContextMerge
+    
+    ContextMerge --> LLMPrompt["LLM Synthesis Prompt<br/>(System instructions + &lt;context&gt;)"]
+    LLMPrompt --> Model["Inference Model (Claude / Gemini)"]
+    Model --> StreamResponse["Synthesized Answer + Citations"]
+    StreamResponse --> ClientUI["Rendered in ask.js"]
+        </pre>
+      </div>
+    </section>
+
+    <!-- 8. OPERATIONS -->
+    <section id="operations" class="doc-section">
+      <h1>Operations & Maintenance Runbook</h1>
+      <p class="lead">Deployment protocols, freshness auditing, and annual academic rollover.</p>
+
+      <h2>Freshness & Sync Log Monitoring</h2>
+      <div class="diagram-container">
+        <div class="diagram-title">Operational Health Check Flow</div>
+        <pre class="mermaid">
+graph TD
+    FooterPip["Footer Pip Status"] --> Check{"Status?"}
+    Check -- "Green Pip: Synced X ago" --> OK["Collector is on-schedule"]
+    Check -- "Amber Pip: Late / Missed" --> Investigate["Collector slot missed or failed"]
+    
+    Investigate --> TapLog["Tap Footer to Expand Sync Log"]
+    TapLog --> ViewSlots["Inspect Last 12 Slots:
+    - 'X new, Y updated': Run succeeded
+    - 'nothing new': Normal scan, no changes
+    - 'didn't run': Scheduled slot was skipped
+    - 'failed': Shows error traceback"]
+        </pre>
+      </div>
+
+      <h2>Annual Calendar Rollover (Every August)</h2>
+      <div class="diagram-container">
+        <div class="diagram-title">Academic Year Rollover Sequence</div>
+        <pre class="mermaid">
+flowchart LR
+    Step1["1. Ingest New Calendar<br/>(day_cycle 8-day dates)"] --> Step2["2. Advance Student Grades<br/>(e.g., Grade 6 -> Grade 7)"]
+    Step2 --> Step3["3. Reconcile Classes<br/>(Deactivate old course URLs)"]
+    Step3 --> Step4["4. Archive Old Posts<br/>(Set raw_items.watch = false)"]
+    Step4 --> Step5["5. Update Timetable Rules<br/>(New Gym / French cycle days)"]
+        </pre>
+      </div>
+    </section>
+
+  </main>
+</div>
+
+<script>
+  // Initialize Mermaid with startOnLoad: false to prevent NaN/geometry errors on hidden tabs
+  const isDark = window.matchMedia("(prefers-color-scheme: dark)").matches;
+  mermaid.initialize({
+    startOnLoad: false,
+    theme: isDark ? "dark" : "neutral",
+    themeVariables: {
+      primaryColor: isDark ? "#2c2350" : "#ede9fe",
+      primaryTextColor: isDark ? "#c4b5fd" : "#5b21b6",
+      primaryBorderColor: isDark ? "#c4b5fd" : "#5b21b6",
+      lineColor: isDark ? "#a09a93" : "#6b6560",
+      secondaryColor: isDark ? "#0d3b37" : "#ccfbf1",
+      tertiaryColor: isDark ? "#1e1c1a" : "#ffffff"
+    }
+  });
+
+  // Render unrendered diagrams in a given element
+  async function renderDiagramsIn(container) {
+    const nodes = container.querySelectorAll(".mermaid:not([data-processed='true'])");
+    if (nodes.length > 0) {
+      try {
+        await mermaid.run({ nodes: Array.from(nodes) });
+      } catch (err) {
+        console.error("Mermaid render error:", err);
+      }
+    }
+  }
+
+  // Tab switching
+  const buttons = document.querySelectorAll(".nav-links button");
+  const sections = document.querySelectorAll(".doc-section");
+
+  async function switchTab(targetId) {
+    buttons.forEach(b => b.classList.toggle("active", b.dataset.target === targetId));
+    sections.forEach(s => s.classList.toggle("active", s.id === targetId));
+    window.scrollTo({ top: 0, behavior: "smooth" });
+
+    const activeSection = document.getElementById(targetId);
+    if (activeSection) {
+      await renderDiagramsIn(activeSection);
+    }
+  }
+
+  buttons.forEach(btn => {
+    btn.addEventListener("click", () => switchTab(btn.dataset.target));
+  });
+
+  // Render initial active tab on page load
+  window.addEventListener("DOMContentLoaded", () => {
+    switchTab("overview");
+  });
+  // Fallback if already loaded
+  if (document.readyState === "complete" || document.readyState === "interactive") {
+    switchTab("overview");
+  }
+
+  // Search filter
+  const searchInput = document.getElementById("docSearch");
+  searchInput.addEventListener("input", e => {
+    const q = e.target.value.toLowerCase().trim();
+    if (!q) {
+      buttons.forEach(b => b.style.display = "flex");
+      return;
+    }
+    buttons.forEach(b => {
+      const match = b.textContent.toLowerCase().includes(q) || b.dataset.target.includes(q);
+      b.style.display = match ? "flex" : "none";
+    });
+  });
+</script>
+</body>
+</html>
