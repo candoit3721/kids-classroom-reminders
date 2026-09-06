@@ -129,7 +129,8 @@ For each raw item, the model returns a JSON array. Every event carries an
     "kid_title": "Basketball tryout #2",
     "icon": "🏀",
     "parent_detail": "U12 Girls Basketball tryout 2 of 3. No Kiss and Go.",
-    "confidence": 0.95
+    "confidence": 0.95,
+    "audience_gender": "F"
   }
 ]
 ```
@@ -147,6 +148,13 @@ Rules the prompt must state explicitly:
   if the post says "Day 5", leave `event_date` null and set
   `"cycle_day": 5` instead - the DB resolves it via `day_cycle`.
 - `confidence` below 0.7 for anything inferred rather than stated.
+- `audience_gender`: `"M"` or `"F"` **only** when the post itself restricts the
+  activity to boys or to girls ("U12 Boys Volleyball", "Girls Basketball");
+  co-ed, mixed or unstated is `null`. Never inferred from a name or a photo.
+  The event is still captured: each kid carries a `gender` (`M`, `F`, or
+  `N/A` when not shared) and every read - the public views, `agenda_window`,
+  the semantic chunks - keeps only what applies, via `gender_ok()`. A kid
+  recorded as `N/A` sees both kinds. Changing the setting takes effect at once.
 
 Then one call per event:
 
@@ -154,7 +162,8 @@ Then one call per event:
 select * from upsert_event(
   p_kid_slug   => 'sophia',
   p_dedupe_key => :raw_item_id || ':' || :activity_key,
-  p_event_date => '2026-09-11', ... );
+  p_event_date => '2026-09-11', ...,
+  p_audience_gender => 'F');     -- 'M' | 'F' | null; omitted = keep what is stored
 ```
 
 Returns `out_action` = `created` | `updated` | `unchanged`, plus `out_material`.

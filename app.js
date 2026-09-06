@@ -152,6 +152,9 @@ function renderFilter(){
 function schoolCards(from, to){
   const out = [];
   for (const s of state.school_events){
+    // a boys-only / girls-only school event lists the kids it applies to;
+    // skip it unless one of the kids on screen is among them
+    if (Array.isArray(s.for_kids) && !s.for_kids.some(k => state.sel.has(k))) continue;
     let d = s.event_date; const end = s.end_date || s.event_date;
     while (d <= end){
       if (d >= from && d <= to) out.push({
