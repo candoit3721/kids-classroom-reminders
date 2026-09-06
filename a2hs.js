@@ -11,10 +11,11 @@
      - the browser can actually install it
    Chrome and Edge (desktop and Android) expose beforeinstallprompt, which
    never fires once the app is installed — so they go quiet on their own.
-   iOS Safari and macOS Safari have no install API, and once added they run
-   the app with storage of its own that this page cannot see; there the
-   banner shows the Share → Add to Home Screen / File → Add to Dock steps
-   plus an "I've added it" button that retires it for good. Firefox: nothing.
+   Safari and Chrome on iOS, and Safari on macOS, have no install API, and
+   once added they run the app with storage of its own that this page cannot
+   see; there the banner shows the Share → Add to Home Screen / File → Add to
+   Dock steps plus an "I've added it" button that retires it for good.
+   Firefox and the other iOS browsers: nothing.
    ============================================================ */
 (() => {
   const KEY_DISMISSED = "a2hs.dismissedAt";
@@ -104,11 +105,16 @@
 
   const share = `<svg class="a2hs-share" viewBox="0 0 24 24" width="16" height="16" aria-hidden="true"><path fill="currentColor" d="M12 2 8 6h3v9h2V6h3l-4-4zM5 10v10h14V10h-2v8H7v-8H5z"/></svg>`;
 
-  // iOS first: no browser there has an install API, whatever the UA claims
+  // iOS first: no browser there has an install API, whatever the UA claims.
+  // Safari adds to the Home Screen from its share sheet; since iOS 16.4 Chrome
+  // can too, from the share button beside its address bar (Chrome 115+).
   if (isIOS){
-    if (isSafariIOS) show({
+    const isChromeIOS = /CriOS/.test(ua);
+    if (isSafariIOS || isChromeIOS) show({
       title: "Add to your home screen",
-      text: `Tap ${share} <b>Share</b>, then <b>Add to Home Screen</b>.`,
+      text: isChromeIOS
+        ? `Tap ${share} <b>Share</b> beside the address bar, then <b>Add to Home Screen</b>.`
+        : `Tap ${share} <b>Share</b>, then <b>Add to Home Screen</b>.`,
       done: "I've added it"
     });
     return;

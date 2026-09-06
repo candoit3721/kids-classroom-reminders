@@ -15,3 +15,6 @@ node_modules/
 
 # downloaded school portal documents (originals kept for re-extraction)
 school-portal/
+
+# files the Claude desktop app drops into the folder (previews it sends back)
+Claude outputs/
