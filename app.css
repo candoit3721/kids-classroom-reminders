@@ -88,6 +88,8 @@ header{display:flex;align-items:flex-start;justify-content:space-between;gap:1re
 .asklink[hidden]{display:none}
 
 section{margin:0 0 1.6rem}
+/* the Coming up section has no heading, so give its first day a little air */
+section > .daygroup:first-child{margin-top:.2rem}
 h2{font-size:.8rem;text-transform:uppercase;letter-spacing:.1em;color:var(--muted);
    margin:0 0 .6rem .2rem;font-weight:800}
 h2 .count{color:var(--accent)}

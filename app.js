@@ -221,7 +221,8 @@ function dayHeading(iso){
 
 function section(title, items, mode, emptyMsg){
   const s = document.createElement("section");
-  s.innerHTML = `<h2>${title}${items.length ? ` <span class="count">${items.length}</span>` : ""}</h2>`;
+  // no title → no heading: the day headings inside carry the section
+  if (title) s.innerHTML = `<h2>${title}${items.length ? ` <span class="count">${items.length}</span>` : ""}</h2>`;
   if (!items.length){
     if (!emptyMsg) return null;
     const d = document.createElement("div"); d.className = "empty"; d.innerHTML = emptyMsg;
@@ -258,7 +259,7 @@ function render(){
 
   [ section("Today", visible(t,t), "flat", `<span class="big">✨</span>Nothing on today. Enjoy it!`),
     section("Tomorrow", visible(tom,tom), "flat", `<span class="big">😌</span>Nothing tomorrow either.`),
-    section("Coming up", visible(addDays(t,2), end), "grouped", null)
+    section(null, visible(addDays(t,2), end), "grouped", null)   // the days speak for themselves
   ].filter(Boolean).forEach(s => c.appendChild(s));
 
   if (!c.children.length) c.innerHTML = `<div class="empty"><span class="big">🌱</span>Nothing scheduled yet.</div>`;
@@ -368,12 +369,11 @@ $("#fresh").onclick = () => {
   el.setAttribute("aria-expanded", String(!open));
   const log = $("#synclog"); if (log) log.hidden = open;
 };
-/* Ask is parent-only. Reveal the way in only where its key already lives, so
-   the kids' pages stay clean; the key itself is still what guards the page. */
-const askLink = $("#asklink");          // only on "/" - the kids' pages omit it
-try {
-  if (askLink && localStorage.getItem("askToken")) askLink.hidden = false;
-} catch {}
+/* Ask is parent-only, guarded by its key on the Ask page itself. The link
+   used to appear only where that key was already saved, but an installed app
+   (Safari's Add to Dock, an iPhone home-screen app) has storage of its own
+   and never sees the key the browser saved - leaving no way to reach the
+   page at all. So the link simply shows on "/"; the kids' pages omit it. */
 try {
   if (localStorage.getItem("school") === "0"){
     state.school = false; $("#showSchool").checked = false; $("#schoolToggle").dataset.on = "0";
